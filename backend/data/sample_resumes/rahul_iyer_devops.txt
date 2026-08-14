@@ -1,0 +1,49 @@
+Rahul Iyer
+Site Reliability / DevOps Engineer
+Chennai, Tamil Nadu, India
+rahul.iyer@example.com | +91 88250 77341
+https://www.linkedin.com/in/rahuliyer-sre
+
+PROFILE
+DevOps and SRE professional with 6 years of experience automating infrastructure and
+release engineering for regulated fintech workloads on AWS and Azure.
+
+CORE SKILLS
+Cloud: AWS (EC2, EKS, S3, IAM, CloudWatch), Azure, GCP fundamentals
+Containers: Docker, Kubernetes, Helm, Istio
+IaC: Terraform, Ansible, CloudFormation
+CI/CD: Jenkins, GitLab CI, GitHub Actions, ArgoCD
+Observability: Prometheus, Grafana, Loki, ELK Stack, Datadog
+Scripting: Python, Bash, Go
+Security: Vault, Trivy, SonarQube, OWASP Top 10, SOC 2 controls
+Databases: PostgreSQL, MySQL, Redis
+
+EMPLOYMENT HISTORY
+
+Senior DevOps Engineer | Trellis Payments | Chennai | Nov 2021 - Present
+- Run 6 EKS clusters with Helm and ArgoCD GitOps delivery; 99.98% availability.
+- Reduced deployment lead time from 4 hours to 11 minutes with GitHub Actions pipelines.
+- Codified 100% of infrastructure in Terraform modules reviewed by security.
+- Implemented Prometheus + Grafana SLO dashboards and on-call runbooks.
+
+DevOps Engineer | Halcyon Software | Coimbatore | July 2019 - Oct 2021
+- Containerised 40 legacy Java and Python services with Docker.
+- Built Jenkins shared libraries and automated blue-green releases.
+
+Cloud Support Engineer | Nexcore IT | Chennai | June 2018 - June 2019
+- Managed Linux fleets, patching and backup automation with Ansible.
+
+PROJECTS
+Zero Downtime Migration: moved 2 TB PostgreSQL estate to Aurora with logical replication.
+ChaosLab: fault injection harness in Go used for quarterly resilience game days.
+
+EDUCATION
+B.E. Computer Science and Engineering, Anna University, 2018
+
+CERTIFICATIONS
+Certified Kubernetes Administrator (CKA), 2022
+AWS Certified DevOps Engineer - Professional, 2023
+HashiCorp Certified: Terraform Associate, 2021
+
+LANGUAGES
+English, Tamil, Hindi

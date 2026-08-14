@@ -1,0 +1,143 @@
+# Slim AI Skill Analyser for OpenShift Developer Sandbox.
+# Redeploy from the repo root: .\deploy.cmd
+# (packs a tar archive, starts the cluster build, then rolls out this file)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: skill-analyser
+type: Opaque
+stringData:
+  SECRET_KEY: "change-me-openshift-sandbox-secret-key"
+  FIRST_SUPERUSER_EMAIL: "admin@skillanalyser.ai"
+  FIRST_SUPERUSER_PASSWORD: "Admin@12345"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skill-analyser
+  labels:
+    app: skill-analyser
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skill-analyser
+  template:
+    metadata:
+      labels:
+        app: skill-analyser
+    spec:
+      containers:
+        - name: app
+          image: image-registry.openshift-image-registry.svc:5000/it-amjath-dev/skill-analyser:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: skill-analyser
+                  key: SECRET_KEY
+            - name: FIRST_SUPERUSER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: skill-analyser
+                  key: FIRST_SUPERUSER_EMAIL
+            - name: FIRST_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: skill-analyser
+                  key: FIRST_SUPERUSER_PASSWORD
+            - name: BACKEND_CORS_ORIGINS
+              value: "*"
+            - name: DATABASE_URL
+              value: sqlite:////tmp/skill_analyser.db
+            - name: STORAGE_DIR
+              value: /tmp/storage
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 20
+          volumeMounts:
+            - name: data
+              mountPath: /tmp
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skill-analyser
+spec:
+  selector:
+    app: skill-analyser
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: skill-analyser
+spec:
+  host: skill-analyser-it-amjath-dev.apps.rm3.7wse.p1.openshiftapps.com
+  to:
+    kind: Service
+    name: skill-analyser
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+# Custom domain (keep the OpenShift hostname above as a second URL).
+# DNS: CNAME @ and www to the OpenShift host, preferably via Cloudflare proxy.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: skill-analyser-in
+spec:
+  host: skillanalyser.in
+  to:
+    kind: Service
+    name: skill-analyser
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: skill-analyser-www
+spec:
+  host: www.skillanalyser.in
+  to:
+    kind: Service
+    name: skill-analyser
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

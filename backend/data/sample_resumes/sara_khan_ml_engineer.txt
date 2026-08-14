@@ -1,0 +1,48 @@
+Sara Khan
+Machine Learning Engineer (NLP)
+Remote / Mumbai, Maharashtra
+sara.khan@example.com | (+91) 97300 12045
+github.com/sarakhan-ml | linkedin.com/in/sarakhan-ml
+
+SUMMARY
+Machine learning engineer with 5 years of experience taking NLP systems from research
+notebook to production API. Focused on retrieval augmented generation, embeddings and
+evaluation. Comfortable owning the full path: data, training, serving and monitoring.
+
+SKILLS
+Machine Learning: PyTorch, TensorFlow, Scikit-learn, Hugging Face Transformers,
+Sentence Transformers, LangChain, LlamaIndex, spaCy, NLTK
+Techniques: NLP, Named Entity Recognition, Semantic Search, RAG, Prompt Engineering,
+Knowledge Graphs, Recommendation Systems, Model Evaluation, Fine-tuning, LoRA
+Data: Python, SQL, Pandas, NumPy, FAISS, pgvector, PostgreSQL, Neo4j
+MLOps: MLflow, Docker, Kubernetes, FastAPI, AWS SageMaker, Weights & Biases
+Visualisation: Matplotlib, Streamlit
+
+EXPERIENCE
+
+Machine Learning Engineer - Cognisum AI, Remote (Feb 2022 - Present)
+* Built a Graph RAG assistant over 4M documents combining Neo4j traversal with FAISS
+  vector retrieval; answer accuracy improved 27% over pure vector baseline.
+* Shipped resume and job description matching models with sentence-transformers and
+  explainable score decomposition used by 30 recruiting teams.
+* Serve models behind FastAPI on Kubernetes with MLflow registry and drift monitors.
+* Reduced inference cost 55% via ONNX quantisation and batching.
+
+Data Scientist - Orbit Insurance, Mumbai (July 2019 - Jan 2022)
+* Developed claims triage NLP models with spaCy and Scikit-learn, saving 11K hours/year.
+* Created an entity resolution pipeline for policyholder records in PostgreSQL.
+
+PROJECTS
+ResumeIQ: open source resume parser using spaCy NER plus rule based sectioning; 1.4K stars.
+GraphRAG-Bench: benchmark comparing graph and vector retrieval on technical corpora.
+
+EDUCATION
+M.Sc. Data Science, University of Mumbai, 2019
+B.Sc. Statistics, St. Xavier's College, Mumbai, 2017
+
+CERTIFICATIONS
+DeepLearning.AI Natural Language Processing Specialization, 2021
+AWS Certified Machine Learning - Specialty, 2023
+
+LANGUAGES
+English, Hindi, Urdu

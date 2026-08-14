@@ -1,0 +1,144 @@
+name: ai-skill-analyser
+
+x-backend-env: &backend-env
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+  DEBUG: ${DEBUG:-true}
+  SECRET_KEY: ${SECRET_KEY:-change-me-in-production-please-use-a-long-random-string}
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-skill_analyser}:${POSTGRES_PASSWORD:-skill_analyser}@postgres:5432/${POSTGRES_DB:-skill_analyser}
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  USE_CELERY: ${USE_CELERY:-true}
+  STORAGE_DIR: /app/storage
+  SKILLS_CSV_PATH: /app/data/skills.csv
+  AUTO_IMPORT_SKILLS: ${AUTO_IMPORT_SKILLS:-true}
+  EMBEDDING_BACKEND: ${EMBEDDING_BACKEND:-sentence-transformers}
+  EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+  EMBEDDING_DIM: ${EMBEDDING_DIM:-384}
+  VECTOR_BACKEND: ${VECTOR_BACKEND:-pgvector}
+  GRAPH_BACKEND: ${GRAPH_BACKEND:-neo4j}
+  NEO4J_URI: bolt://neo4j:7687
+  NEO4J_USER: ${NEO4J_USER:-neo4j}
+  NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4j_password}
+  LLM_BACKEND: ${LLM_BACKEND:-template}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
+  ENABLE_OCR: ${ENABLE_OCR:-false}
+  HF_HOME: /app/.hf_cache
+  BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173,http://localhost:8080}
+  FIRST_SUPERUSER_EMAIL: ${FIRST_SUPERUSER_EMAIL:-admin@skillanalyser.ai}
+  FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:-Admin@12345}
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: skill-analyser-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-skill_analyser}
+      POSTGRES_USER: ${POSTGRES_USER:-skill_analyser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-skill_analyser}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-skill_analyser} -d ${POSTGRES_DB:-skill_analyser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: skill-analyser-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: skill-analyser-neo4j
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-neo4j_password}
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_PLUGINS: '["apoc"]'
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        INSTALL_AI_EXTRAS: "${INSTALL_AI_EXTRAS:-true}"
+    container_name: skill-analyser-backend
+    command: ["/app/entrypoint.sh", "api"]
+    environment: *backend-env
+    ports:
+      - "8000:8000"
+    volumes:
+      - resume_storage:/app/storage
+      - hf_cache:/app/.hf_cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://localhost:8000/api/health')\""]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  worker:
+    build:
+      context: ./backend
+      args:
+        INSTALL_AI_EXTRAS: "${INSTALL_AI_EXTRAS:-true}"
+    container_name: skill-analyser-worker
+    command: ["/app/entrypoint.sh", "worker"]
+    environment: *backend-env
+    volumes:
+      - resume_storage:/app/storage
+      - hf_cache:/app/.hf_cache
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Served through the container's nginx, which proxies /api to the backend service.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    container_name: skill-analyser-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  neo4j_data:
+  resume_storage:
+  hf_cache:

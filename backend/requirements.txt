@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------------
+# Core runtime dependencies.
+# The application is fully functional with only these installed: it falls back
+# to deterministic hash embeddings + rule-based entity extraction so it can run
+# offline / in CI. Install requirements-ai.txt for the full AI stack.
+# ---------------------------------------------------------------------------
+
+# Web framework
+fastapi>=0.115,<0.121
+uvicorn[standard]>=0.32,<0.36
+python-multipart>=0.0.18,<0.1
+
+# Data / validation
+pydantic>=2.9,<3
+pydantic-settings>=2.6,<3
+email-validator>=2.2,<3
+python-dateutil>=2.9,<3
+
+# Database
+SQLAlchemy>=2.0.35,<2.1
+alembic>=1.14,<2
+psycopg[binary]>=3.2,<4
+pgvector>=0.3.6,<0.5
+
+# Security
+PyJWT>=2.9,<3
+bcrypt>=4.2,<5
+cryptography>=43,<47
+
+# Background processing
+celery>=5.4,<6
+redis>=5.2,<7
+
+# Document processing
+pdfplumber>=0.11,<0.12
+PyMuPDF>=1.24,<2
+python-docx>=1.1,<2
+
+# Graph
+networkx>=3.3,<4
+neo4j>=5.24,<6
+
+# Numerics / vector math
+numpy>=1.26,<3
+
+# Reporting / export
+reportlab>=4.2,<5
+openpyxl>=3.1,<4
+
+# Utilities
+httpx>=0.27,<0.29

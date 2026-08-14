@@ -1,0 +1,1 @@
+{"spec":{"resources":{"requests":{"cpu":"1","memory":"3Gi"},"limits":{"cpu":"2","memory":"4Gi"}}}}

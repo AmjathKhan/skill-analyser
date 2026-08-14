@@ -1,0 +1,48 @@
+Neha Verma
+Frontend Engineer (ReactJS)
+Hyderabad, Telangana
+neha.verma@example.com
+Mobile: +91 90000 87654
+GitHub: github.com/nehaverma-ui
+
+OBJECTIVE
+Frontend engineer with 4 years of experience crafting accessible, performant interfaces
+with ReactJS, TypeScript and Material UI for enterprise SaaS products.
+
+TECHNICAL SKILLS
+ReactJS, TypeScript, JavaScript ES6, Redux Toolkit, React Query, React Router,
+React Hook Form, Material UI, Tailwind CSS, HTML5, CSS3, SASS, Vite, Webpack,
+Jest, React Testing Library, Playwright, Storybook, Figma, Recharts, D3.js,
+REST API integration, Web Accessibility (WCAG 2.1), Git
+
+SOFT SKILLS
+Collaboration, Attention to Detail, User Empathy, Written Communication
+
+PROFESSIONAL EXPERIENCE
+
+Frontend Engineer, Lumen HR Cloud, Hyderabad (September 2022 - Present)
+- Rebuilt the recruiter workspace in ReactJS + TypeScript with Material UI, shipping a
+  dark mode and responsive layouts used by 180 HR teams.
+- Cut bundle size 41% by migrating from Webpack to Vite and adding route level code
+  splitting.
+- Built dashboard visualisations with Recharts including skill distribution and hiring
+  funnel widgets.
+- Raised unit coverage from 22% to 78% using Jest and React Testing Library.
+
+Associate Frontend Developer, Pixelframe Studios, Hyderabad (June 2021 - August 2022)
+- Delivered marketing sites and internal tools in ReactJS and Next.js.
+- Implemented design tokens and a reusable component library in Storybook.
+
+PROJECTS
+Skill Graph Explorer: interactive force-directed graph of candidate skills using
+react-force-graph, TypeScript and Recharts.
+A11y Audit Toolkit: browser extension that flags WCAG issues; TypeScript, Vite.
+
+EDUCATION
+Bachelor of Technology, Computer Science, JNTU Hyderabad, 2021
+
+CERTIFICATIONS
+Meta Front-End Developer Professional Certificate, 2022
+
+LANGUAGES
+English, Hindi, Telugu

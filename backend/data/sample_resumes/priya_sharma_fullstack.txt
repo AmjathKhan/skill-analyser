@@ -1,0 +1,68 @@
+Priya Sharma
+Senior Full Stack Engineer
+Bengaluru, Karnataka, India
+Email: priya.sharma@example.com | Phone: +91 98450 11223
+LinkedIn: https://linkedin.com/in/priyasharma-dev | GitHub: https://github.com/priyasharma
+
+PROFESSIONAL SUMMARY
+Full stack engineer with 8 years of experience designing and shipping cloud-native
+products. Specialises in Python backends (FastAPI, Django) and TypeScript front ends
+(ReactJS, Next.js) backed by PostgreSQL. Led a platform migration to Kubernetes on AWS
+that cut infrastructure spend by 32% while improving p95 latency.
+
+TECHNICAL SKILLS
+Languages: Python, TypeScript, JavaScript, SQL, Go
+Backend: FastAPI, Django, Flask, REST API, GraphQL, Celery
+Frontend: ReactJS, Redux, Next.js, HTML5, CSS3, Material UI
+Databases: PostgreSQL, Redis, MongoDB, Elasticsearch
+Cloud & DevOps: AWS, Docker, Kubernetes, Terraform, GitHub Actions, Jenkins
+Testing: Pytest, Jest, Cypress
+Practices: Microservices, Event Driven Architecture, CI/CD, System Design
+
+SOFT SKILLS
+Leadership, Mentoring, Stakeholder Communication, Problem Solving
+
+EXPERIENCE
+
+Senior Full Stack Engineer, Zentara Technologies, Bengaluru
+March 2021 - Present
+- Designed a multi-tenant billing platform with FastAPI, PostgreSQL and Redis serving
+  1.2M API calls per day.
+- Built the ReactJS + TypeScript console used by 400 enterprise customers; introduced
+  Material UI design system and cut UI defects by 45%.
+- Migrated 23 services from EC2 to Kubernetes (EKS) with Terraform and GitHub Actions.
+- Mentored 6 engineers and ran the internal system design guild.
+
+Software Engineer, Nimbus Retail Labs, Pune
+July 2018 - February 2021
+- Implemented order orchestration microservices in Python and Celery handling peak
+  traffic of 9K orders per minute.
+- Added Elasticsearch powered catalogue search, improving conversion by 12%.
+- Owned PostgreSQL schema design, partitioning and query tuning.
+
+Associate Software Engineer, Infoway Systems, Hyderabad
+June 2016 - June 2018
+- Developed Django REST services and AngularJS dashboards for supply chain clients.
+- Automated regression suites with Pytest and Selenium.
+
+PROJECTS
+
+SkillGraph (2023)
+Knowledge graph over engineering competencies built with Neo4j, FastAPI and
+sentence-transformers. Powered internal mobility recommendations for 2,000 employees.
+Technologies: Python, FastAPI, Neo4j, PostgreSQL, pgvector, ReactJS
+
+Realtime Analytics Console (2022)
+Streaming dashboard using Kafka, ClickHouse and ReactJS with sub-second refresh.
+Technologies: Kafka, ClickHouse, ReactJS, TypeScript, Docker
+
+EDUCATION
+Master of Technology in Computer Science, Indian Institute of Technology Bombay, 2016
+Bachelor of Engineering in Information Technology, Pune University, 2014
+
+CERTIFICATIONS
+AWS Certified Solutions Architect - Associate, Amazon Web Services, 2022
+Certified Kubernetes Administrator (CKA), Cloud Native Computing Foundation, 2023
+
+LANGUAGES
+English, Hindi, Marathi

@@ -1,0 +1,9 @@
+-r requirements.txt
+
+pytest>=8.3,<9
+pytest-cov>=5,<8
+pytest-asyncio>=0.24,<1
+ruff>=0.7,<1
+mypy>=1.11,<2
+types-python-dateutil>=2.9,<3
+faker>=30,<40

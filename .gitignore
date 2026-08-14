@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Node
+node_modules/
+dist/
+.vite/
+*.local
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+deploy/ovh/.env.production
+
+# Runtime data
+storage/
+backend/storage/
+backend/.smoke/
+*.sqlite3
+*.db
+logs/
+*.log
+tsconfig.tsbuildinfo
+
+# AI model caches
+.cache/
+models/
+.hf_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

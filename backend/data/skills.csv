@@ -1,0 +1,146 @@
+skill_id,skill_name,category,parent_skill,related_skills,technology_stack,job_role,experience_level,skill_synonyms,skill_description
+SK001,Python,Programming Language,,Django;Flask;FastAPI;Pandas;NumPy;Celery,Backend,Backend Developer;Data Engineer;ML Engineer,intermediate,Python3;Python 3;CPython;Py,General purpose programming language widely used for backend services data engineering and machine learning.
+SK002,Java,Programming Language,,Spring Boot;Hibernate;Maven;Kotlin,Backend,Backend Developer;Android Developer,intermediate,Java8;Java 8;Java11;Core Java;J2EE,Object oriented language for enterprise backend and Android development.
+SK003,JavaScript,Programming Language,,TypeScript;ReactJS;NodeJS;Angular;VueJS,Frontend,Frontend Developer;Full Stack Developer,intermediate,JS;ECMAScript;ES6;Vanilla JavaScript,Scripting language of the web used on both browser and server.
+SK004,TypeScript,Programming Language,JavaScript,ReactJS;Angular;NestJS;NodeJS,Frontend,Frontend Developer;Full Stack Developer,intermediate,TS;Typescript,Typed superset of JavaScript that compiles to plain JavaScript.
+SK005,C++,Programming Language,,C;Qt;Embedded Systems,Systems,Systems Engineer;Game Developer,advanced,CPP;C plus plus;C/C++,High performance systems programming language.
+SK006,C#,Programming Language,,.NET;ASP.NET Core;Entity Framework;Unity,Microsoft,Backend Developer;Game Developer,intermediate,CSharp;C sharp;C#.NET,Microsoft language for .NET applications and game development.
+SK007,Go,Programming Language,,Docker;Kubernetes;gRPC,Backend,Backend Developer;Platform Engineer,intermediate,Golang;Go Lang,Compiled language designed for concurrent networked services.
+SK008,Rust,Programming Language,,WebAssembly;Systems Programming,Systems,Systems Engineer;Backend Developer,advanced,Rust Lang,Memory safe systems language with zero cost abstractions.
+SK009,PHP,Programming Language,,Laravel;WordPress;MySQL,Backend,Backend Developer;Web Developer,intermediate,PHP7;PHP8,Server side scripting language for web applications.
+SK010,Ruby,Programming Language,,Ruby on Rails;RSpec,Backend,Backend Developer,intermediate,Ruby Lang,Dynamic language known for developer productivity and Rails.
+SK011,Kotlin,Programming Language,Java,Android;Jetpack Compose;Spring Boot,Mobile,Android Developer;Backend Developer,intermediate,Kotlin Lang,Modern JVM language and the preferred language for Android.
+SK012,Swift,Programming Language,,iOS;SwiftUI;Xcode,Mobile,iOS Developer,intermediate,Swift Lang,Apple language for iOS and macOS development.
+SK013,Scala,Programming Language,Java,Apache Spark;Akka;Kafka,Data,Data Engineer;Backend Developer,advanced,Scala Lang,Functional JVM language popular for big data processing.
+SK014,R,Programming Language,,Statistics;ggplot2;Data Analysis,Data,Data Analyst;Data Scientist,intermediate,R Language;RStudio,Statistical computing language used for analytics and research.
+SK015,SQL,Query Language,,PostgreSQL;MySQL;Oracle;Query Optimization,Database,Data Analyst;Backend Developer;Data Engineer,intermediate,Structured Query Language;T-SQL;PL/SQL;ANSI SQL,Declarative language for querying and manipulating relational data.
+SK016,Bash,Scripting,,Linux;Shell Scripting;Automation,DevOps,DevOps Engineer;SRE,intermediate,Shell;Shell Scripting;Bash Scripting;Zsh,Unix shell used for automation and operational tooling.
+SK020,ReactJS,Frontend Framework,JavaScript,Redux;NextJS;React Router;TypeScript;Material UI,Frontend,Frontend Developer;Full Stack Developer,intermediate,React;React.js;React JS;ReactJs;React 18,Component based library for building user interfaces.
+SK021,Angular,Frontend Framework,TypeScript,RxJS;NgRx;TypeScript,Frontend,Frontend Developer,intermediate,AngularJS;Angular 2+;Angular 15,TypeScript framework for building single page applications.
+SK022,VueJS,Frontend Framework,JavaScript,Vuex;NuxtJS,Frontend,Frontend Developer,intermediate,Vue;Vue.js;Vue 3,Progressive JavaScript framework for building UIs.
+SK023,NextJS,Frontend Framework,ReactJS,ReactJS;Vercel;SSR,Frontend,Frontend Developer;Full Stack Developer,intermediate,Next.js;Next JS,React framework with server side rendering and routing.
+SK024,Redux,State Management,ReactJS,ReactJS;Redux Toolkit;Zustand,Frontend,Frontend Developer,intermediate,Redux Toolkit;RTK;React Redux,Predictable state container for JavaScript applications.
+SK025,Material UI,UI Library,ReactJS,ReactJS;CSS;Styled Components,Frontend,Frontend Developer;UI Engineer,intermediate,MUI;Material-UI;MaterialUI;Material Design,React component library implementing Material Design.
+SK026,HTML5,Markup Language,,CSS3;JavaScript;Accessibility,Frontend,Frontend Developer,beginner,HTML;HTML 5,Markup language that structures web content.
+SK027,CSS3,Stylesheet Language,,SASS;Tailwind CSS;HTML5;Responsive Design,Frontend,Frontend Developer,beginner,CSS;CSS 3;Cascading Style Sheets,Stylesheet language for describing the presentation of web pages.
+SK028,SASS,Stylesheet Language,CSS3,CSS3;SCSS,Frontend,Frontend Developer,beginner,SCSS;Sass;Less,CSS preprocessor adding variables mixins and nesting.
+SK029,Tailwind CSS,UI Library,CSS3,CSS3;ReactJS,Frontend,Frontend Developer;UI Engineer,intermediate,TailwindCSS;Tailwind,Utility first CSS framework for rapid UI development.
+SK030,Recharts,Data Visualization,ReactJS,ReactJS;D3.js,Frontend,Frontend Developer,intermediate,Recharts.js,React charting library built on D3.
+SK031,D3.js,Data Visualization,JavaScript,JavaScript;SVG;Recharts,Frontend,Frontend Developer;Data Visualization Engineer,advanced,D3;d3js;D3 JS,Low level library for building custom data visualizations.
+SK032,Redux Saga,State Management,Redux,Redux;ReactJS,Frontend,Frontend Developer,advanced,Saga;redux-saga,Side effect middleware for Redux using generators.
+SK040,FastAPI,Backend Framework,Python,Python;Pydantic;Uvicorn;SQLAlchemy;Starlette,Backend,Backend Developer;ML Engineer,intermediate,Fast API;fastapi,High performance async Python web framework with automatic OpenAPI docs.
+SK041,Django,Backend Framework,Python,Python;Django REST Framework;PostgreSQL;Celery,Backend,Backend Developer;Full Stack Developer,intermediate,Django Framework;Django 4,Batteries included Python web framework.
+SK042,Flask,Backend Framework,Python,Python;Jinja2;SQLAlchemy,Backend,Backend Developer,intermediate,Flask Framework,Lightweight Python micro web framework.
+SK043,Spring Boot,Backend Framework,Java,Java;Hibernate;Spring Security;Microservices,Backend,Backend Developer,intermediate,Spring;SpringBoot;Spring Framework;Spring MVC,Convention over configuration framework for Java services.
+SK044,NodeJS,Runtime,JavaScript,ExpressJS;NestJS;TypeScript;npm,Backend,Backend Developer;Full Stack Developer,intermediate,Node;Node.js;Node JS,JavaScript runtime for building server side applications.
+SK045,ExpressJS,Backend Framework,NodeJS,NodeJS;REST API;MongoDB,Backend,Backend Developer,intermediate,Express;Express.js;Express JS,Minimal web framework for Node.js.
+SK046,NestJS,Backend Framework,NodeJS,NodeJS;TypeScript;GraphQL,Backend,Backend Developer,advanced,Nest;Nest.js,Opinionated TypeScript framework for scalable Node services.
+SK047,ASP.NET Core,Backend Framework,C#,C#;.NET;Entity Framework,Microsoft,Backend Developer,intermediate,ASP.NET;ASP NET Core;dotnet core,Cross platform framework for building .NET web APIs.
+SK048,Laravel,Backend Framework,PHP,PHP;MySQL;Eloquent,Backend,Backend Developer,intermediate,Laravel Framework,PHP framework with expressive syntax and rich ecosystem.
+SK049,Ruby on Rails,Backend Framework,Ruby,Ruby;PostgreSQL;RSpec,Backend,Backend Developer,intermediate,Rails;RoR,Convention over configuration Ruby web framework.
+SK050,GraphQL,API Technology,,Apollo;REST API;NodeJS,Backend,Backend Developer;Full Stack Developer,intermediate,Graph QL;Apollo GraphQL,Query language and runtime for flexible APIs.
+SK051,REST API,API Technology,,OpenAPI;JSON;HTTP;Postman,Backend,Backend Developer,intermediate,RESTful API;REST;RESTful Services;Web API,Architectural style for stateless HTTP APIs.
+SK052,gRPC,API Technology,,Protocol Buffers;Microservices;Go,Backend,Backend Developer;Platform Engineer,advanced,GRPC;grpc,High performance RPC framework using protocol buffers.
+SK053,SQLAlchemy,ORM,Python,Python;PostgreSQL;Alembic;FastAPI,Backend,Backend Developer,intermediate,SQL Alchemy;sqlalchemy 2.0,Python SQL toolkit and object relational mapper.
+SK054,Hibernate,ORM,Java,Java;Spring Boot;JPA,Backend,Backend Developer,intermediate,JPA;Hibernate ORM,Java persistence framework implementing JPA.
+SK055,Celery,Task Queue,Python,Python;Redis;RabbitMQ;Django,Backend,Backend Developer;Data Engineer,intermediate,Celery Worker;celery beat,Distributed task queue for asynchronous Python jobs.
+SK056,Pydantic,Data Validation,Python,Python;FastAPI,Backend,Backend Developer,intermediate,Pydantic v2;pydantic,Data validation library using Python type hints.
+SK057,Microservices,Architecture,,Docker;Kubernetes;REST API;Kafka;gRPC,Architecture,Backend Developer;Solution Architect,advanced,Microservice Architecture;Micro services,Architectural style structuring an app as independently deployable services.
+SK058,WebSockets,API Technology,,NodeJS;FastAPI;Socket.IO,Backend,Backend Developer,intermediate,Web Sockets;Socket.IO;WS,Protocol for full duplex communication over a single TCP connection.
+SK060,PostgreSQL,Database,SQL,SQL;pgvector;PostGIS;Database Design,Database,Backend Developer;Data Engineer;DBA,intermediate,Postgres;PSQL;Postgre SQL;PostgresSQL,Advanced open source relational database.
+SK061,MySQL,Database,SQL,SQL;MariaDB;Database Design,Database,Backend Developer;DBA,intermediate,My SQL;MariaDB,Popular open source relational database.
+SK062,MongoDB,Database,,NoSQL;Mongoose;ExpressJS,Database,Backend Developer,intermediate,Mongo;Mongo DB;MongoDB Atlas,Document oriented NoSQL database.
+SK063,Redis,Database,,Caching;Celery;Pub/Sub,Database,Backend Developer;DevOps Engineer,intermediate,Redis Cache;ElastiCache,In memory key value store used for caching and queues.
+SK064,Elasticsearch,Search Engine,,Kibana;Logstash;Lucene;OpenSearch,Data,Backend Developer;Data Engineer,advanced,Elastic Search;ELK;OpenSearch,Distributed search and analytics engine.
+SK065,Neo4j,Graph Database,,Cypher;Knowledge Graph;Graph Algorithms,Graph,Data Engineer;AI Engineer,advanced,Neo4J;Neo 4j;Neo4j Aura,Native graph database queried with Cypher.
+SK066,Cypher,Query Language,Neo4j,Neo4j;Graph Traversal,Graph,Data Engineer;AI Engineer,advanced,Cypher Query Language;openCypher,Declarative query language for property graphs.
+SK067,Oracle,Database,SQL,SQL;PL/SQL;Database Design,Database,DBA;Backend Developer,advanced,Oracle DB;Oracle Database;Oracle 19c,Enterprise relational database management system.
+SK068,SQL Server,Database,SQL,SQL;T-SQL;SSIS,Microsoft,DBA;Backend Developer,intermediate,MSSQL;Microsoft SQL Server;MS SQL,Microsoft enterprise relational database.
+SK069,pgvector,Vector Database,PostgreSQL,PostgreSQL;Embeddings;Semantic Search,AI,AI Engineer;Data Engineer,advanced,pg vector;pgvector extension,PostgreSQL extension adding vector similarity search.
+SK070,DynamoDB,Database,,AWS;NoSQL,Cloud,Backend Developer;Cloud Engineer,intermediate,Dynamo DB;AWS DynamoDB,Managed NoSQL key value database on AWS.
+SK071,Cassandra,Database,,NoSQL;Distributed Systems,Data,Data Engineer,advanced,Apache Cassandra;ScyllaDB,Wide column distributed NoSQL database.
+SK072,Database Design,Database Skill,,SQL;Normalization;Indexing,Database,Backend Developer;DBA,intermediate,Data Modeling;Schema Design;ER Modeling,Designing normalized performant relational schemas.
+SK080,Docker,DevOps,,Kubernetes;Docker Compose;CI/CD;Containerization,DevOps,DevOps Engineer;Backend Developer,intermediate,Dockerfile;Docker Compose;Containers,Container platform for packaging and running applications.
+SK081,Kubernetes,DevOps,Docker,Docker;Helm;Istio;Terraform,DevOps,DevOps Engineer;SRE;Platform Engineer,advanced,K8s;K8;EKS;AKS;GKE;Kubernets,Container orchestration platform for scaling workloads.
+SK082,Jenkins,CI/CD,,CI/CD;Groovy;Docker,DevOps,DevOps Engineer,intermediate,Jenkins Pipeline;Hudson,Automation server for building and deploying software.
+SK083,GitHub Actions,CI/CD,,CI/CD;YAML;Docker,DevOps,DevOps Engineer;Backend Developer,intermediate,GH Actions;Github Action;Actions Workflow,Native CI/CD for GitHub repositories.
+SK084,GitLab CI,CI/CD,,CI/CD;Docker;YAML,DevOps,DevOps Engineer,intermediate,Gitlab Pipelines;GitLab CI/CD,Integrated CI/CD engine in GitLab.
+SK085,Terraform,Infrastructure as Code,,AWS;Kubernetes;IaC,DevOps,DevOps Engineer;Cloud Engineer,advanced,Terraform IaC;HCL;OpenTofu,Declarative infrastructure as code tool.
+SK086,Ansible,Configuration Management,,Linux;YAML;IaC,DevOps,DevOps Engineer,intermediate,Ansible Playbook;ansible-playbook,Agentless configuration management and automation tool.
+SK087,CI/CD,DevOps Practice,,Jenkins;GitHub Actions;Docker;Testing,DevOps,DevOps Engineer;Backend Developer,intermediate,Continuous Integration;Continuous Delivery;Continuous Deployment;CICD,Practice of automating build test and release pipelines.
+SK088,Linux,Operating System,,Bash;Networking;System Administration,DevOps,DevOps Engineer;SRE;Backend Developer,intermediate,Unix;Ubuntu;CentOS;RHEL;Linux Administration,Open source operating system family used for servers.
+SK089,Git,Version Control,,GitHub;GitLab;Bitbucket;Branching,DevOps,Backend Developer;Frontend Developer,beginner,Github;GitLab;Version Control;Git Flow,Distributed version control system.
+SK090,Prometheus,Monitoring,,Grafana;Kubernetes;Observability,DevOps,SRE;DevOps Engineer,advanced,PromQL;Prometheus Monitoring,Metrics based monitoring and alerting toolkit.
+SK091,Grafana,Monitoring,,Prometheus;Observability;Dashboards,DevOps,SRE;DevOps Engineer,intermediate,Grafana Dashboards;Grafana Loki,Visualization platform for metrics and logs.
+SK092,Helm,DevOps,Kubernetes,Kubernetes;YAML,DevOps,DevOps Engineer;Platform Engineer,advanced,Helm Charts;helm3,Package manager for Kubernetes manifests.
+SK093,Nginx,Web Server,,Linux;Load Balancing;Reverse Proxy,DevOps,DevOps Engineer;Backend Developer,intermediate,NGINX;nginx proxy;OpenResty,High performance web server and reverse proxy.
+SK100,AWS,Cloud,,EC2;S3;Lambda;Terraform;DynamoDB,Cloud,Cloud Engineer;DevOps Engineer;Solution Architect,intermediate,Amazon Web Services;AWS Cloud;Amazon AWS,Amazon cloud platform offering compute storage and managed services.
+SK101,Azure,Cloud,,Azure DevOps;AKS;Azure Functions,Cloud,Cloud Engineer;DevOps Engineer,intermediate,Microsoft Azure;Azure Cloud;MS Azure,Microsoft cloud platform.
+SK102,GCP,Cloud,,BigQuery;GKE;Cloud Functions,Cloud,Cloud Engineer;Data Engineer,intermediate,Google Cloud;Google Cloud Platform;GCP Cloud,Google cloud platform.
+SK103,EC2,Cloud Service,AWS,AWS;Linux;Auto Scaling,Cloud,Cloud Engineer;DevOps Engineer,intermediate,Amazon EC2;EC2 Instances,Elastic compute service on AWS.
+SK104,S3,Cloud Service,AWS,AWS;Object Storage,Cloud,Cloud Engineer;Data Engineer,beginner,Amazon S3;S3 Bucket,Object storage service on AWS.
+SK105,Lambda,Cloud Service,AWS,AWS;Serverless;API Gateway,Cloud,Cloud Engineer;Backend Developer,intermediate,AWS Lambda;Lambda Functions,Serverless compute service on AWS.
+SK106,Serverless,Architecture,,Lambda;Azure Functions;API Gateway,Cloud,Cloud Engineer;Backend Developer,intermediate,Serverless Architecture;FaaS,Architecture where the cloud provider manages compute allocation.
+SK107,BigQuery,Data Warehouse,GCP,GCP;SQL;Data Warehouse,Data,Data Engineer;Data Analyst,intermediate,Google BigQuery,Serverless data warehouse on Google Cloud.
+SK108,Snowflake,Data Warehouse,,SQL;Data Warehouse;dbt,Data,Data Engineer;Data Analyst,intermediate,Snowflake DB;Snowflake Cloud,Cloud native data warehouse platform.
+SK120,spaCy,NLP Library,Python,Python;NLP;Named Entity Recognition,AI,ML Engineer;AI Engineer;NLP Engineer,intermediate,Spacy;spacy nlp;en_core_web_sm,Industrial strength NLP library for Python.
+SK121,NLP,AI Discipline,Machine Learning,spaCy;Transformers;Text Classification;Embeddings,AI,ML Engineer;AI Engineer;NLP Engineer,advanced,Natural Language Processing;Text Mining;Computational Linguistics,Field of AI focused on understanding human language.
+SK122,Machine Learning,AI Discipline,,Scikit-learn;Deep Learning;Feature Engineering;Python,AI,ML Engineer;Data Scientist,advanced,ML;Machine-Learning;Statistical Learning,Building models that learn patterns from data.
+SK123,Deep Learning,AI Discipline,Machine Learning,PyTorch;TensorFlow;Neural Networks,AI,ML Engineer;AI Engineer,advanced,DL;Neural Networks;Deep Neural Networks,Machine learning using multi layer neural networks.
+SK124,PyTorch,ML Framework,Deep Learning,Deep Learning;Python;Transformers,AI,ML Engineer;AI Engineer,advanced,Torch;pytorch lightning,Deep learning framework with dynamic computation graphs.
+SK125,TensorFlow,ML Framework,Deep Learning,Deep Learning;Keras;Python,AI,ML Engineer,advanced,TF;Tensor Flow;Keras,End to end deep learning platform.
+SK126,Scikit-learn,ML Framework,Machine Learning,Machine Learning;Python;NumPy,AI,ML Engineer;Data Scientist,intermediate,sklearn;Scikit Learn;scikit,Classical machine learning library for Python.
+SK127,Hugging Face Transformers,ML Framework,Deep Learning,PyTorch;NLP;LLM;Sentence Transformers,AI,ML Engineer;AI Engineer,advanced,Transformers;HuggingFace;Hugging Face;HF Transformers,Library of pretrained transformer models.
+SK128,Sentence Transformers,Embedding Library,Hugging Face Transformers,Embeddings;Semantic Search;NLP,AI,AI Engineer;ML Engineer,advanced,SBERT;sentence-transformers;all-MiniLM,Library producing dense sentence embeddings for semantic search.
+SK129,LangChain,LLM Framework,,LLM;RAG;Vector Database;Python,AI,AI Engineer;ML Engineer,advanced,Lang Chain;langchain,Framework for composing LLM applications and RAG pipelines.
+SK130,LlamaIndex,LLM Framework,,LLM;RAG;Vector Database,AI,AI Engineer,advanced,Llama Index;GPT Index,Data framework for connecting LLMs to external data.
+SK131,RAG,AI Technique,LLM,LangChain;Vector Database;Embeddings;Semantic Search,AI,AI Engineer;ML Engineer,advanced,Retrieval Augmented Generation;Retrieval-Augmented Generation;Graph RAG;GraphRAG,Grounding LLM answers in retrieved external context.
+SK132,LLM,AI Discipline,Deep Learning,RAG;Prompt Engineering;Hugging Face Transformers;OpenAI,AI,AI Engineer;ML Engineer,advanced,Large Language Model;Large Language Models;GPT;Foundation Models,Large scale transformer models trained on broad text corpora.
+SK133,Embeddings,AI Technique,,Sentence Transformers;Vector Database;Semantic Search,AI,AI Engineer;ML Engineer,advanced,Vector Embeddings;Text Embeddings;Word Embeddings,Dense numeric representations of text used for similarity search.
+SK134,Vector Database,AI Infrastructure,,FAISS;pgvector;Pinecone;Embeddings,AI,AI Engineer;Data Engineer,advanced,Vector Store;Vector DB;VectorDB,Database optimised for nearest neighbour search over embeddings.
+SK135,FAISS,Vector Database,Vector Database,Embeddings;Semantic Search;Python,AI,AI Engineer;ML Engineer,advanced,Faiss;faiss-cpu;FAISS Index,Facebook AI similarity search library for dense vectors.
+SK136,Semantic Search,AI Technique,Embeddings,Embeddings;Vector Database;NLP,AI,AI Engineer;Search Engineer,advanced,Vector Search;Similarity Search;Neural Search,Retrieval based on meaning rather than keyword overlap.
+SK137,Knowledge Graph,AI Technique,,Neo4j;Graph Algorithms;RAG;Ontology,Graph,AI Engineer;Data Engineer,advanced,Knowledge Graphs;KG;Graph Knowledge Base,Graph structured representation of entities and their relationships.
+SK138,Graph Algorithms,AI Technique,Knowledge Graph,Neo4j;NetworkX;PageRank,Graph,AI Engineer;Data Scientist,advanced,Graph Theory;Graph Traversal;BFS;PageRank,Algorithms for traversing and analysing graph structures.
+SK139,NetworkX,Graph Library,Python,Python;Graph Algorithms;Knowledge Graph,Graph,AI Engineer;Data Scientist,intermediate,Network X;networkx,Python library for creating and analysing graphs.
+SK140,Prompt Engineering,AI Technique,LLM,LLM;RAG;OpenAI,AI,AI Engineer,intermediate,Prompting;Prompt Design;Prompt Tuning,Designing effective instructions and context for LLMs.
+SK141,MLOps,AI Practice,Machine Learning,MLflow;Docker;Kubernetes;CI/CD,AI,ML Engineer;Platform Engineer,advanced,ML Ops;Machine Learning Operations,Practices for deploying monitoring and maintaining ML systems.
+SK142,Pandas,Data Library,Python,Python;NumPy;Data Analysis,Data,Data Engineer;Data Analyst,intermediate,pandas;Pandas DataFrame,Python library for tabular data manipulation.
+SK143,NumPy,Data Library,Python,Python;Pandas;Scikit-learn,Data,Data Engineer;ML Engineer,intermediate,Numpy;numpy arrays,Numerical computing library for Python.
+SK144,Apache Spark,Big Data,,Scala;Python;Hadoop;Databricks,Data,Data Engineer,advanced,Spark;PySpark;Spark SQL,Distributed engine for large scale data processing.
+SK145,Apache Kafka,Streaming,,Streaming;Microservices;Zookeeper,Data,Data Engineer;Backend Developer,advanced,Kafka;Kafka Streams;Confluent Kafka,Distributed event streaming platform.
+SK146,Airflow,Data Orchestration,Python,Python;ETL;Data Pipelines,Data,Data Engineer,advanced,Apache Airflow;Airflow DAG,Platform for authoring and scheduling data workflows.
+SK147,ETL,Data Practice,,Airflow;SQL;Data Pipelines;dbt,Data,Data Engineer;Data Analyst,intermediate,ELT;Data Pipelines;Data Integration,Extract transform load processes that move data between systems.
+SK148,Power BI,BI Tool,,SQL;Data Visualization;DAX,Data,Data Analyst;BI Developer,intermediate,PowerBI;MS Power BI,Microsoft business intelligence and dashboarding tool.
+SK149,Tableau,BI Tool,,SQL;Data Visualization,Data,Data Analyst;BI Developer,intermediate,Tableau Desktop;Tableau Server,Interactive data visualization and BI platform.
+SK150,Computer Vision,AI Discipline,Deep Learning,OpenCV;PyTorch;Image Processing,AI,ML Engineer;AI Engineer,advanced,CV;Image Recognition;Vision AI,Field of AI that interprets images and video.
+SK151,OpenCV,ML Framework,Computer Vision,Computer Vision;Python,AI,ML Engineer,intermediate,Open CV;cv2,Library of computer vision and image processing algorithms.
+SK160,Android,Mobile Platform,,Kotlin;Java;Jetpack Compose,Mobile,Android Developer,intermediate,Android SDK;Android Development;Android Studio,Google mobile operating system and development platform.
+SK161,iOS,Mobile Platform,,Swift;SwiftUI;Xcode,Mobile,iOS Developer,intermediate,iOS Development;Apple iOS;iPhone Development,Apple mobile operating system and development platform.
+SK162,React Native,Mobile Framework,ReactJS,ReactJS;JavaScript;Mobile,Mobile,Mobile Developer;Full Stack Developer,intermediate,ReactNative;React-Native;RN,Framework for building native mobile apps with React.
+SK163,Flutter,Mobile Framework,,Dart;Mobile;Firebase,Mobile,Mobile Developer,intermediate,Flutter SDK;FlutterFlow,Google UI toolkit for cross platform apps from one codebase.
+SK170,Pytest,Testing,Python,Python;Unit Testing;Test Automation,Testing,QA Engineer;Backend Developer,intermediate,py.test;pytest fixtures,Testing framework for Python.
+SK171,Jest,Testing,JavaScript,JavaScript;ReactJS;Unit Testing,Testing,QA Engineer;Frontend Developer,intermediate,Jest Testing;jest snapshot,JavaScript testing framework maintained by Meta.
+SK172,Selenium,Test Automation,,Test Automation;Python;Java,Testing,QA Engineer;SDET,intermediate,Selenium WebDriver;Selenium Grid,Browser automation framework for functional testing.
+SK173,Cypress,Test Automation,JavaScript,JavaScript;End to End Testing,Testing,QA Engineer;Frontend Developer,intermediate,Cypress.io;cypress e2e,End to end testing framework for web applications.
+SK174,Unit Testing,Testing Practice,,Pytest;Jest;TDD,Testing,Backend Developer;QA Engineer,intermediate,Unit Tests;Unit Test;Component Testing,Testing individual units of code in isolation.
+SK175,Test Automation,Testing Practice,,Selenium;Cypress;CI/CD,Testing,QA Engineer;SDET,intermediate,Automated Testing;QA Automation;Automation Testing,Automating test execution as part of delivery pipelines.
+SK180,OAuth 2.0,Security,,JWT;OpenID Connect;SSO,Security,Backend Developer;Security Engineer,advanced,OAuth;OAuth2;OAuth 2,Authorization framework for delegated access.
+SK181,JWT,Security,,OAuth 2.0;Authentication;RBAC,Security,Backend Developer,intermediate,JSON Web Token;JWT Auth;Bearer Token,Compact signed token format used for stateless authentication.
+SK182,RBAC,Security,,Authentication;Authorization;JWT,Security,Backend Developer;Security Engineer,intermediate,Role Based Access Control;Role-Based Access Control;Authorization,Access control model driven by user roles.
+SK183,Application Security,Security,,OWASP;Penetration Testing;Encryption,Security,Security Engineer,advanced,AppSec;Secure Coding;Software Security,Practices that protect applications from threats.
+SK184,OWASP,Security,Application Security,Application Security;Penetration Testing,Security,Security Engineer,advanced,OWASP Top 10;OWASP ZAP,Open standards and tooling for web application security.
+SK185,Encryption,Security,,TLS;Cryptography;Key Management,Security,Security Engineer;Backend Developer,advanced,Cryptography;AES;TLS;SSL,Protecting data confidentiality using cryptographic algorithms.
+SK190,Agile,Methodology,,Scrum;Kanban;Jira,Process,Project Manager;Scrum Master;Backend Developer,intermediate,Agile Methodology;Agile Development;SAFe,Iterative delivery methodology emphasising adaptability.
+SK191,Scrum,Methodology,Agile,Agile;Jira;Sprint Planning,Process,Scrum Master;Project Manager,intermediate,Scrum Framework;Sprints,Agile framework organising work into sprints.
+SK192,Jira,Project Tool,,Agile;Scrum;Confluence,Process,Project Manager;Scrum Master,beginner,Atlassian Jira;JIRA,Issue tracking and agile project management tool.
+SK193,System Design,Architecture,,Microservices;Scalability;Database Design,Architecture,Solution Architect;Backend Developer,advanced,High Level Design;HLD;LLD;Architecture Design,Designing scalable reliable software architectures.
+SK194,Technical Documentation,Soft Skill,,Communication;Confluence,Process,Backend Developer;Technical Writer,intermediate,Documentation;Tech Writing,Writing clear technical references and guides.
+SK200,Communication,Soft Skill,,Teamwork;Presentation;Stakeholder Management,Soft Skills,All Roles,intermediate,Verbal Communication;Written Communication;Communication Skills,Conveying information clearly to varied audiences.
+SK201,Leadership,Soft Skill,,Team Management;Mentoring;Decision Making,Soft Skills,Engineering Manager;Team Lead,advanced,Team Leadership;People Leadership,Guiding teams towards outcomes and growth.
+SK202,Problem Solving,Soft Skill,,Analytical Thinking;Debugging,Soft Skills,All Roles,intermediate,Problem-Solving;Analytical Skills;Critical Thinking,Structured analysis and resolution of complex issues.
+SK203,Teamwork,Soft Skill,,Communication;Collaboration,Soft Skills,All Roles,beginner,Collaboration;Team Player;Cross-functional Collaboration,Working effectively with others toward shared goals.
+SK204,Stakeholder Management,Soft Skill,Communication,Communication;Negotiation,Soft Skills,Project Manager;Product Manager,advanced,Stakeholder Communication;Client Management,Aligning expectations across business stakeholders.
+SK205,Mentoring,Soft Skill,Leadership,Leadership;Coaching,Soft Skills,Team Lead;Engineering Manager,advanced,Coaching;Mentorship;Knowledge Sharing,Developing others through guidance and feedback.
+SK206,Time Management,Soft Skill,,Prioritization;Planning,Soft Skills,All Roles,beginner,Prioritization;Organisational Skills,Planning and prioritising work to meet commitments.
+SK207,Adaptability,Soft Skill,,Learning Agility,Soft Skills,All Roles,beginner,Flexibility;Learning Agility;Resilience,Adjusting effectively to changing requirements.

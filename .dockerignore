@@ -1,0 +1,16 @@
+.git
+**/.venv
+**/node_modules
+frontend/dist
+backend/storage
+storage
+**/*.db
+**/.env
+**/.env.*
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+docs
+deploy/ovh
+agent-transcripts
+*.md

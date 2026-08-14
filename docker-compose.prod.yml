@@ -1,0 +1,60 @@
+# Production overlay for OVH (or any public VPS).
+# Does not publish Postgres / Redis / Neo4j / the API to the internet.
+# Caddy terminates HTTP(S) and reverse-proxies to the frontend nginx.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     --env-file .env.production up -d --build
+#
+name: ai-skill-analyser
+
+services:
+  postgres:
+    ports: !override []
+    restart: unless-stopped
+
+  redis:
+    ports: !override []
+    restart: unless-stopped
+
+  neo4j:
+    ports: !override []
+    restart: unless-stopped
+
+  backend:
+    ports: !override []
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+
+  worker:
+    restart: unless-stopped
+
+  frontend:
+    ports: !override []
+    restart: unless-stopped
+    build:
+      args:
+        VITE_API_BASE_URL: /api
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: skill-analyser-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./deploy/ovh/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+
+volumes:
+  caddy_data:
+  caddy_config:

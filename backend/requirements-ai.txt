@@ -1,0 +1,26 @@
+# ---------------------------------------------------------------------------
+# Optional AI extras (large download: torch + models ~2.5 GB).
+# Install with:  pip install -r requirements.txt -r requirements-ai.txt
+# Then:          python -m spacy download en_core_web_sm
+#
+# With these installed set EMBEDDING_BACKEND=sentence-transformers and
+# VECTOR_BACKEND=faiss (or pgvector) for production quality retrieval.
+# ---------------------------------------------------------------------------
+
+# NLP / NER
+spacy>=3.7,<4
+
+# Embeddings & transformers
+sentence-transformers>=3.0,<6
+transformers>=4.44,<6
+torch>=2.3
+
+# Vector index
+faiss-cpu>=1.8,<2
+
+# RAG text chunking helpers
+langchain-text-splitters>=0.3,<0.4
+
+# OCR for scanned resumes (also requires the tesseract binary on the host)
+pytesseract>=0.3.13,<0.4
+Pillow>=10.4,<12

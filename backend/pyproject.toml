@@ -1,0 +1,53 @@
+[project]
+name = "ai-skill-analyser-backend"
+version = "1.0.0"
+description = "Graph RAG based HR recruitment platform - FastAPI backend"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 118
+target-version = "py311"
+extend-exclude = [".venv", "alembic/versions", ".smoke"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # bugbear
+    "UP",   # pyupgrade
+    "SIM",  # simplify
+    "C4",   # comprehensions
+    "RUF",
+]
+ignore = [
+    "E501",   # line length is handled by the formatter
+    "B008",   # FastAPI dependencies are function calls in defaults by design
+    "RUF012", # ClassVar annotations are noise on Pydantic/SQLAlchemy models
+    "UP042",  # str+Enum keeps `.value` semantics that StrEnum would change
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "SIM117"]
+"scripts/*" = ["T201"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+# No python_version pin: third-party stubs (numpy) require the running interpreter's syntax.
+plugins = ["pydantic.mypy"]
+ignore_missing_imports = true
+warn_unused_configs = true
+warn_redundant_casts = true
+no_implicit_optional = true
+check_untyped_defs = true
+exclude = "(\\.venv|alembic|tests|\\.smoke)"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning:passlib.*"]

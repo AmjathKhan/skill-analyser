@@ -1,0 +1,47 @@
+Arjun Mehta
+Lead Data Engineer
+Gurugram, Haryana, India
+arjun.mehta@example.com | +91 99100 44578
+linkedin.com/in/arjunmehta-data | github.com/arjun-mehta
+
+SUMMARY
+Data engineer with 10 years of experience building petabyte-scale batch and streaming
+platforms. Strong in Python, Spark and SQL with deep Airflow and dbt expertise on AWS.
+
+SKILLS
+Programming: Python, Scala, SQL, Bash
+Big Data: Apache Spark, PySpark, Apache Kafka, Apache Airflow, dbt, Hadoop, Hive
+Warehouse: Snowflake, Amazon Redshift, PostgreSQL, BigQuery
+Cloud: AWS, S3, Glue, EMR, Lambda, Azure Data Factory
+Tooling: Docker, Kubernetes, Terraform, Git, Grafana, Prometheus
+ML Adjacent: Pandas, NumPy, MLflow, Feature Engineering
+
+WORK EXPERIENCE
+
+Lead Data Engineer - Brightline Analytics, Gurugram (Jan 2020 - Present)
+* Own a lakehouse on S3 + Spark + Snowflake processing 40 TB per day.
+* Rebuilt 300 Airflow DAGs with dbt models, cutting pipeline failures by 68%.
+* Introduced data contracts and Great Expectations quality gates across 12 domains.
+* Manage a team of 9 engineers across two time zones.
+
+Senior Data Engineer - Kestrel Fintech, Bengaluru (Aug 2016 - Dec 2019)
+* Built real time fraud feature pipelines on Kafka Streams with 120 ms end to end lag.
+* Migrated the on-premise Hadoop warehouse to Amazon Redshift.
+
+Data Engineer - Vertex Consulting, Mumbai (July 2014 - July 2016)
+* Delivered ETL for banking clients with Informatica, Hive and PostgreSQL.
+
+PROJECTS
+Streaming Credit Risk Store: Kafka, Spark Structured Streaming, Redis feature store.
+Cost Observability Suite: Python, Athena and Grafana dashboards saving USD 480K annually.
+
+EDUCATION
+B.Tech, Electronics and Communication Engineering, Delhi Technological University, 2014
+
+CERTIFICATIONS
+AWS Certified Data Engineer - Associate, 2024
+SnowPro Core Certification, Snowflake, 2022
+Databricks Certified Data Engineer Professional, 2023
+
+LANGUAGES
+English, Hindi
