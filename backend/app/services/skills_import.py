@@ -12,19 +12,34 @@ from __future__ import annotations
 import csv
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from io import StringIO
 from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.ai.text_utils import normalize_key, slugify, split_list_field, title_case
-from app.core.exceptions import ValidationAppError
+from app.core.exceptions import FileTooLargeError, UnsupportedFileError, ValidationAppError
 from app.core.logging import get_logger
 from app.models.skill import JobRole, Skill, SkillCategory, SkillRelation, SkillSynonym
 from app.services.taxonomy import invalidate_taxonomy
 
 logger = get_logger(__name__)
+
+#: Canonical Skills CSV columns — download and upload share this header.
+SKILLS_CSV_COLUMNS: tuple[str, ...] = (
+    "skill_id",
+    "skill_name",
+    "category",
+    "parent_skill",
+    "related_skills",
+    "technology_stack",
+    "job_role",
+    "experience_level",
+    "skill_synonyms",
+    "skill_description",
+)
 
 #: Accepted spellings for each logical CSV column.
 COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
@@ -41,6 +56,9 @@ COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
 }
 
 NON_TECHNICAL_CATEGORIES = {"soft skill", "soft skills", "methodology", "process", "language", "behavioural"}
+
+MAX_SKILLS_CSV_BYTES = 2 * 1024 * 1024
+CANONICAL_SKILL_NAME_HEADERS = frozenset({"skill_name", "skillname"})
 
 
 @dataclass(slots=True)
@@ -110,23 +128,130 @@ def _unique_slug(name: str, taken: set[str]) -> str:
     return candidate
 
 
+def parse_skills_csv_bytes(
+    data: bytes,
+    *,
+    filename: str | None = None,
+    require_csv_extension: bool = False,
+) -> tuple[dict[str, str], list[dict[str, str]]]:
+    """Validate uploaded/imported bytes and return (column_map, rows). Does not touch the database."""
+    if require_csv_extension:
+        name = (filename or "").strip()
+        if not name.lower().endswith(".csv"):
+            raise UnsupportedFileError(
+                "Please upload a .csv file. Excel workbooks (.xlsx) and other formats are not accepted."
+            )
+
+    if not data or not data.strip():
+        raise ValidationAppError("The uploaded file is empty.")
+    if len(data) > MAX_SKILLS_CSV_BYTES:
+        raise FileTooLargeError("CSV is too large (max 2 MB).")
+
+    prefix = data.lstrip()[:8]
+    if prefix.startswith(b"PK") or prefix.startswith(b"%PDF") or prefix.startswith(b"\xd0\xcf\x11\xe0"):
+        raise UnsupportedFileError(
+            "This is not a CSV file. Save or export as CSV (not Excel or PDF) and try again."
+        )
+    if b"\x00" in data[:4096]:
+        raise UnsupportedFileError("This file is not valid CSV text. Save it as CSV UTF-8 and try again.")
+
+    try:
+        text = data.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise ValidationAppError(
+            "Could not read the file as UTF-8 CSV. In Excel use Save As → CSV UTF-8, then upload that file."
+        ) from exc
+
+    stripped = text.lstrip()
+    lowered = stripped[:32].lower()
+    if lowered.startswith("<!doctype") or lowered.startswith("<html") or stripped.startswith("{") or stripped.startswith("["):
+        raise ValidationAppError(
+            "Wrong file format. Upload a skills CSV downloaded from this page, not JSON or HTML."
+        )
+
+    header_line = ""
+    body = text
+    skipped = 0
+    for line in text.splitlines():
+        if not line.strip():
+            skipped += 1
+            continue
+        if line.strip().lower().startswith("sep="):
+            skipped += 1
+            continue
+        header_line = line
+        break
+    if skipped:
+        body = "\n".join(text.splitlines()[skipped:])
+
+    if not header_line:
+        raise ValidationAppError("Skills CSV is missing a header row.")
+
+    try:
+        dialect = csv.Sniffer().sniff(header_line, delimiters=",;\t")
+    except csv.Error:
+        dialect = csv.excel
+
+    try:
+        reader = csv.DictReader(StringIO(body), dialect=dialect)
+        fieldnames = [name for name in (reader.fieldnames or []) if name and str(name).strip()]
+        if not fieldnames:
+            raise ValidationAppError("Skills CSV is missing a header row.")
+        rows = list(reader)
+    except csv.Error as exc:
+        raise ValidationAppError(
+            "The file could not be parsed as CSV. Download the template from this page and keep the same columns."
+        ) from exc
+
+    normalized_headers = {_normalize_header(name) for name in fieldnames}
+    if not (normalized_headers & CANONICAL_SKILL_NAME_HEADERS):
+        raise ValidationAppError(
+            "Wrong CSV format. The header must include a skill_name column. "
+            "Download the CSV from this page and keep those column names."
+        )
+
+    column_map = _build_column_map(fieldnames)
+    if "skill_name" not in column_map:
+        raise ValidationAppError(
+            "Wrong CSV format. The header must include a skill_name column. "
+            "Download the CSV from this page and keep those column names."
+        )
+
+    named_rows = [row for row in rows if _cell(row, column_map, "skill_name")]
+    if not named_rows:
+        raise ValidationAppError("The CSV has no skill rows. Each row needs a value in the skill_name column.")
+
+    return column_map, rows
+
+
 def import_skills_csv(session: Session, csv_path: str | Path, *, refresh_taxonomy: bool = True) -> ImportReport:
     path = Path(csv_path)
     if not path.exists():
         raise ValidationAppError(f"Skills CSV not found at {path}")
+    return import_skills_from_bytes(
+        session,
+        path.read_bytes(),
+        source=str(path),
+        filename=path.name,
+        refresh_taxonomy=refresh_taxonomy,
+    )
 
-    report = ImportReport(source=str(path))
 
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
-        if not reader.fieldnames:
-            raise ValidationAppError("Skills CSV appears to be empty")
-        column_map = _build_column_map(reader.fieldnames)
-        if "skill_name" not in column_map:
-            raise ValidationAppError(
-                "Skills CSV must contain a skill name column (skill_name / name / skill)"
-            )
-        rows = list(reader)
+def import_skills_from_bytes(
+    session: Session,
+    data: bytes,
+    *,
+    source: str,
+    filename: str | None = None,
+    require_csv_extension: bool = False,
+    refresh_taxonomy: bool = True,
+) -> ImportReport:
+    column_map, rows = parse_skills_csv_bytes(
+        data,
+        filename=filename,
+        require_csv_extension=require_csv_extension,
+    )
+    report = ImportReport(source=source)
 
     categories = {category.normalized_name: category for category in session.scalars(select(SkillCategory))}
     job_roles = {role.normalized_name: role for role in session.scalars(select(JobRole))}
@@ -283,3 +408,65 @@ def import_skills_csv(session: Session, csv_path: str | Path, *, refresh_taxonom
 
 def skills_table_is_empty(session: Session) -> bool:
     return session.scalar(select(Skill.id).limit(1)) is None
+
+
+def _join_list(values: Iterable[str]) -> str:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        text = (value or "").strip()
+        if not text:
+            continue
+        key = text.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        ordered.append(text)
+    return ";".join(ordered)
+
+
+def export_skills_csv(session: Session) -> bytes:
+    """Serialize the live taxonomy using the same columns the importer accepts."""
+    skills = list(
+        session.scalars(
+            select(Skill).options(
+                selectinload(Skill.synonyms),
+                selectinload(Skill.category),
+                selectinload(Skill.job_roles),
+                selectinload(Skill.parent_skill),
+            )
+        )
+    )
+    names = {skill.id: skill.name for skill in skills}
+    related: dict[int, set[str]] = {skill.id: set() for skill in skills}
+    for relation in session.scalars(select(SkillRelation)):
+        source_name = names.get(relation.source_skill_id)
+        target_name = names.get(relation.target_skill_id)
+        if not source_name or not target_name:
+            continue
+        related.setdefault(relation.source_skill_id, set()).add(target_name)
+        related.setdefault(relation.target_skill_id, set()).add(source_name)
+
+    buffer = StringIO()
+    writer = csv.DictWriter(buffer, fieldnames=list(SKILLS_CSV_COLUMNS), lineterminator="\n")
+    writer.writeheader()
+    for skill in sorted(
+        skills,
+        key=lambda item: (item.external_id is None, item.external_id or "", item.name.lower()),
+    ):
+        related_names = sorted(name for name in related.get(skill.id, set()) if name != skill.name)
+        writer.writerow(
+            {
+                "skill_id": skill.external_id or "",
+                "skill_name": skill.name,
+                "category": skill.category.name if skill.category else "",
+                "parent_skill": skill.parent_skill.name if skill.parent_skill else "",
+                "related_skills": _join_list(related_names),
+                "technology_stack": skill.technology_stack or "",
+                "job_role": _join_list(role.name for role in skill.job_roles),
+                "experience_level": skill.experience_level or "",
+                "skill_synonyms": _join_list(synonym.synonym for synonym in skill.synonyms),
+                "skill_description": skill.description or "",
+            }
+        )
+    return ("\ufeff" + buffer.getvalue()).encode("utf-8")

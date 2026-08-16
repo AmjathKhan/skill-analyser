@@ -60,6 +60,11 @@ def test_reports_contain_kpis_and_gaps(client: TestClient, recruiter_headers, up
     assert body["top_technologies"]
     assert body["top_skills"]
     assert body["pipeline"]
+    assert body["period_start"]
+    assert body["period_end"]
+    assert body["insights"]
+    assert "hired" in kpis
+    assert kpis["unique_skills"] >= 0
     assert abs(sum(stage["percent"] for stage in body["pipeline"]) - 100) < 1.5
     assert {gap["skill"] for gap in body["skill_gaps"]} == {"Python", "Kubernetes"}
 
@@ -116,6 +121,85 @@ def test_skill_import_is_admin_only(client: TestClient, recruiter_headers, admin
     report = response.json()
     assert report["skills_created"] == 0
     assert report["rows_read"] > 50
+
+
+def test_skills_csv_export_and_upload_round_trip(client: TestClient, recruiter_headers, admin_headers) -> None:
+    assert client.get("/api/skills/export", headers=recruiter_headers).status_code == 403
+
+    exported = client.get("/api/skills/export", headers=admin_headers)
+    assert exported.status_code == 200
+    assert exported.headers["content-type"].startswith("text/csv")
+    assert "skills-knowledge-base.csv" in exported.headers.get("content-disposition", "")
+    text = exported.content.decode("utf-8-sig")
+    header = text.splitlines()[0]
+    assert header == (
+        "skill_id,skill_name,category,parent_skill,related_skills,"
+        "technology_stack,job_role,experience_level,skill_synonyms,skill_description"
+    )
+    assert "Python" in text
+    assert "SK001" in text
+
+    payload = (
+        "skill_id,skill_name,category,parent_skill,related_skills,"
+        "technology_stack,job_role,experience_level,skill_synonyms,skill_description\n"
+        "SK998,SkillAnalyser CSV Test Skill,API Technology,,GraphQL,Backend,"
+        "Backend Developer,intermediate,CSV Test Skill,Unique skill used to verify CSV upload creates rows.\n"
+        "SK999,GraphQL,API Technology,,NodeJS,Backend,"
+        "Backend Developer,intermediate,GQL;Graph QL,Query language for APIs.\n"
+    )
+    uploaded = client.post(
+        "/api/skills/import/upload?generate_embeddings=false",
+        headers=admin_headers,
+        files={"file": ("skills.csv", payload.encode("utf-8"), "text/csv")},
+    )
+    assert uploaded.status_code == 200, uploaded.text
+    body = uploaded.json()
+    assert body["skills_created"] >= 1
+    assert body["skills_updated"] >= 1
+
+    listing = client.get("/api/skills?search=SkillAnalyser CSV Test", headers=admin_headers).json()
+    created = next(skill for skill in listing if skill["name"] == "SkillAnalyser CSV Test Skill")
+    assert created["external_id"] == "SK998"
+
+    graphql = next(
+        skill
+        for skill in client.get("/api/skills?search=graphql", headers=admin_headers).json()
+        if skill["name"] == "GraphQL"
+    )
+    assert graphql["external_id"] == "SK999"
+
+    python = client.get("/api/skills?search=python", headers=admin_headers).json()
+    assert any(skill["name"] == "Python" for skill in python)
+
+
+def test_skills_csv_upload_rejects_wrong_format(client: TestClient, admin_headers) -> None:
+    before = client.get("/api/skills/stats", headers=admin_headers).json()["taxonomy_size"]
+
+    def upload(name: str, content: bytes, content_type: str = "text/csv"):
+        return client.post(
+            "/api/skills/import/upload?generate_embeddings=false",
+            headers=admin_headers,
+            files={"file": (name, content, content_type)},
+        )
+
+    cases = [
+        ("skills.xlsx", b"PK\x03\x04not-an-excel-file"),
+        ("skills.csv", b"%PDF-1.4\n%wrong"),
+        ("skills.csv", b""),
+        ("skills.csv", b"name,email,phone\nAda,ada@example.com,1\n"),
+        ("notes.txt", b"skill_id,skill_name,category\nSK1,Python,Language\n"),
+        ("skills.csv", b"skill_id,skill_name,category\n"),
+        ("skills.csv", b'{"skill_name": "Python"}\n'),
+    ]
+    for name, content in cases:
+        response = upload(name, content)
+        assert response.status_code in {415, 422}, (name, response.status_code, response.text)
+        payload = response.json()
+        assert payload["error"]["message"]
+        assert "skill" in payload["error"]["message"].lower() or "csv" in payload["error"]["message"].lower() or "empty" in payload["error"]["message"].lower() or "format" in payload["error"]["message"].lower()
+
+    after = client.get("/api/skills/stats", headers=admin_headers).json()["taxonomy_size"]
+    assert after == before
 
 
 def test_job_requirement_crud(client: TestClient, recruiter_headers) -> None:

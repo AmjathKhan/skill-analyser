@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 import io
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,7 @@ from app.schemas.dashboard import (
     NamedValue,
     PipelineStage,
     RecruitmentKPIs,
+    ReportInsight,
     ReportResponse,
     TrendPoint,
 )
@@ -37,6 +38,124 @@ PIPELINE_ORDER = (
 )
 
 
+def _period_bounds(months: int) -> tuple[date, date]:
+    today = date.today()
+    year, month = today.year, today.month
+    for _ in range(max(months, 1) - 1):
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
+    return date(year, month, 1), today
+
+
+def _build_insights(
+    kpis: RecruitmentKPIs,
+    pipeline: list[PipelineStage],
+    skill_gaps: list[dict],
+    hiring_trends: list[TrendPoint],
+    top_skills: list[NamedValue],
+) -> list[ReportInsight]:
+    insights: list[ReportInsight] = []
+
+    if kpis.resumes_processed and kpis.parse_success_rate < 85:
+        insights.append(
+            ReportInsight(
+                level="warning",
+                title="Resume parse quality needs attention",
+                detail=(
+                    f"Parse success is {kpis.parse_success_rate:.0f}% "
+                    f"({kpis.failed_resumes} failed). Recheck unreadable PDFs or scanned files."
+                ),
+            )
+        )
+    if kpis.total_candidates and kpis.taxonomy_coverage_percent < 70:
+        insights.append(
+            ReportInsight(
+                level="warning",
+                title="Many skills are not mapped to the knowledge base",
+                detail=(
+                    f"Taxonomy coverage is {kpis.taxonomy_coverage_percent:.0f}%. "
+                    "Upload an updated skills CSV so matching can normalize more phrases."
+                ),
+            )
+        )
+    if kpis.pending_review and kpis.total_candidates and kpis.pending_review / kpis.total_candidates >= 0.35:
+        insights.append(
+            ReportInsight(
+                level="warning",
+                title="Review backlog is high",
+                detail=(
+                    f"{kpis.pending_review} candidates are pending review "
+                    f"({100 * kpis.pending_review / kpis.total_candidates:.0f}% of the pool)."
+                ),
+            )
+        )
+    scarce = [gap for gap in skill_gaps if float(gap.get("coverage_percent") or 0) < 25][:3]
+    if scarce:
+        names = ", ".join(str(gap.get("skill")) for gap in scarce)
+        insights.append(
+            ReportInsight(
+                level="warning",
+                title="Scarce skills in the talent pool",
+                detail=f"{names} appear in fewer than 25% of candidates. Source or upskill for these.",
+            )
+        )
+    if len(hiring_trends) >= 2:
+        latest, previous = hiring_trends[-1], hiring_trends[-2]
+        if latest.candidates > previous.candidates:
+            insights.append(
+                ReportInsight(
+                    level="success",
+                    title="Inbound pipeline is growing",
+                    detail=(
+                        f"{latest.period} added {latest.candidates} candidates vs "
+                        f"{previous.candidates} in {previous.period}."
+                    ),
+                )
+            )
+        elif latest.candidates < previous.candidates:
+            insights.append(
+                ReportInsight(
+                    level="info",
+                    title="Inbound slowed this period",
+                    detail=(
+                        f"{latest.period} added {latest.candidates} candidates vs "
+                        f"{previous.candidates} in {previous.period}."
+                    ),
+                )
+            )
+    if top_skills:
+        lead = top_skills[0]
+        insights.append(
+            ReportInsight(
+                level="info",
+                title="Most common skill",
+                detail=f"{lead.name} is on {int(lead.value)} candidate profiles — the strongest signal in this pool.",
+            )
+        )
+    if kpis.hired:
+        insights.append(
+            ReportInsight(
+                level="success",
+                title="Hires recorded",
+                detail=f"{kpis.hired} candidate(s) are marked hired. Interviewing: {kpis.interviewing}.",
+            )
+        )
+    if kpis.average_match_score is not None and kpis.matches_run:
+        insights.append(
+            ReportInsight(
+                level="info",
+                title="Match quality",
+                detail=(
+                    f"{kpis.matches_run} match run(s) with an average top-of-funnel score of "
+                    f"{kpis.average_match_score:.0f}%."
+                ),
+            )
+        )
+    return insights[:6]
+
+
 def build_report(
     session: Session,
     *,
@@ -49,12 +168,18 @@ def build_report(
     total_candidates = repo.count_candidates(session)
     shortlisted = repo.count_candidates(session, status=CandidateStatus.SHORTLISTED.value)
     rejected = repo.count_candidates(session, status=CandidateStatus.REJECTED.value)
+    hired = repo.count_candidates(session, status=CandidateStatus.HIRED.value)
+    interviewing = repo.count_candidates(session, status=CandidateStatus.INTERVIEWING.value)
+    pending_review = repo.count_candidates(session, status=CandidateStatus.PENDING_REVIEW.value)
 
     from sqlalchemy import func, select
 
     from app.models.ai import MatchRun
 
     matches_run = session.scalar(select(func.count(MatchRun.id))) or 0
+    start, end = period_start or _period_bounds(months)[0], period_end or _period_bounds(months)[1]
+    period_start_dt = datetime.combine(start, datetime.min.time(), tzinfo=UTC)
+    period_end_dt = datetime.combine(end + timedelta(days=1), datetime.min.time(), tzinfo=UTC)
 
     kpis = RecruitmentKPIs(
         total_candidates=total_candidates,
@@ -63,9 +188,16 @@ def build_report(
         average_parse_ms=processing["average_parse_ms"],
         shortlist_rate=round(100 * shortlisted / total_candidates, 2) if total_candidates else 0.0,
         rejection_rate=round(100 * rejected / total_candidates, 2) if total_candidates else 0.0,
+        hired=hired,
+        interviewing=interviewing,
+        pending_review=pending_review,
+        failed_resumes=int(processing.get("failed") or 0),
         average_experience_years=repo.average_experience(session),
         skills_per_candidate=repo.skills_per_candidate(session),
         taxonomy_coverage_percent=repo.taxonomy_coverage(session),
+        unique_skills=repo.unique_skill_count(session),
+        unique_companies=repo.unique_company_count(session),
+        new_candidates_in_period=repo.candidates_added_between(session, period_start_dt, period_end_dt),
         matches_run=matches_run,
         average_match_score=repo.average_match_score(session),
     )
@@ -83,28 +215,44 @@ def build_report(
 
     default_gap_skills = gap_skills or [name for name, _, _ in repo.top_skills(session, limit=10)]
     skill_gaps = [item.model_dump() for item in analyze_skill_gaps(session, default_gap_skills)]
+    top_skills = [
+        NamedValue(name=name, value=count, extra=category)
+        for name, count, category in repo.top_skills(session, limit=20)
+    ]
+    hiring_trends = [
+        TrendPoint(
+            period=period,
+            uploads=uploads,
+            candidates=candidates,
+            shortlisted=shortlisted_count,
+            rejected=rejected_count,
+        )
+        for period, uploads, candidates, shortlisted_count, rejected_count in repo.hiring_trends(session, months=months)
+    ]
 
     return ReportResponse(
         generated_at=datetime.now(UTC),
-        period_start=period_start,
-        period_end=period_end,
+        period_start=start,
+        period_end=end,
         kpis=kpis,
+        insights=_build_insights(kpis, pipeline, skill_gaps, hiring_trends, top_skills),
         top_technologies=[NamedValue(name=name, value=count) for name, count in repo.technology_distribution(session, limit=12)],
-        top_skills=[
-            NamedValue(name=name, value=count, extra=category)
-            for name, count, category in repo.top_skills(session, limit=15)
-        ],
+        top_skills=top_skills,
         top_categories=[NamedValue(name=name, value=count) for name, count in repo.category_distribution(session, limit=12)],
-        hiring_trends=[
-            TrendPoint(period=period, uploads=uploads, candidates=candidates, shortlisted=shortlisted_count, rejected=rejected_count)
-            for period, uploads, candidates, shortlisted_count, rejected_count in repo.hiring_trends(session, months=months)
-        ],
+        hiring_trends=hiring_trends,
         skill_gaps=skill_gaps,
         pipeline=pipeline,
         experience_distribution=[
             NamedValue(name=label, value=count) for label, count in repo.experience_distribution(session)
         ],
         top_companies=[NamedValue(name=name, value=count) for name, count in repo.top_companies(session, limit=12)],
+        top_certifications=[
+            NamedValue(name=name, value=count) for name, count in repo.top_certifications(session, limit=12)
+        ],
+        top_locations=[NamedValue(name=name, value=count) for name, count in repo.top_locations(session, limit=10)],
+        education_distribution=[
+            NamedValue(name=name, value=count) for name, count in repo.education_distribution(session)
+        ],
         recent_matches=[
             {
                 "run_id": run.id,
@@ -116,14 +264,14 @@ def build_report(
                 "top_candidates": [
                     {
                         "candidate_id": result.candidate_id,
-                        "name": result.candidate.full_name,
+                        "name": result.candidate.full_name if result.candidate else f"#{result.candidate_id}",
                         "score": result.overall_score,
                         "recommendation": result.recommendation,
                     }
                     for result in run.results[:5]
                 ],
             }
-            for run in repo.recent_match_runs(session, limit=5)
+            for run in repo.recent_match_runs(session, limit=8)
         ],
     )
 
@@ -149,6 +297,14 @@ def _report_rows(report: ReportResponse) -> list[tuple[str, str, str]]:
         rows.append(("Experience", item.name, str(int(item.value))))
     for item in report.top_companies:
         rows.append(("Company", item.name, str(int(item.value))))
+    for item in report.top_certifications:
+        rows.append(("Certification", item.name, str(int(item.value))))
+    for item in report.top_locations:
+        rows.append(("Location", item.name, str(int(item.value))))
+    for item in report.education_distribution:
+        rows.append(("Education", item.name, str(int(item.value))))
+    for insight in report.insights:
+        rows.append(("Insight", insight.title, insight.detail))
     return rows
 
 
@@ -206,6 +362,11 @@ def export_excel(report: ReportResponse) -> bytes:
         [[item.name, int(item.value)] for item in report.top_technologies],
     )
     write_sheet(
+        "Categories",
+        ["Category", "Candidates"],
+        [[item.name, int(item.value)] for item in report.top_categories],
+    )
+    write_sheet(
         "Pipeline",
         ["Stage", "Count", "Percent"],
         [[stage.label, stage.count, stage.percent] for stage in report.pipeline],
@@ -236,6 +397,26 @@ def export_excel(report: ReportResponse) -> bytes:
         "Experience",
         ["Band", "Candidates"],
         [[item.name, int(item.value)] for item in report.experience_distribution],
+    )
+    write_sheet(
+        "Certifications",
+        ["Certification", "Candidates"],
+        [[item.name, int(item.value)] for item in report.top_certifications],
+    )
+    write_sheet(
+        "Locations",
+        ["Location", "Candidates"],
+        [[item.name, int(item.value)] for item in report.top_locations],
+    )
+    write_sheet(
+        "Education",
+        ["Degree", "Candidates"],
+        [[item.name, int(item.value)] for item in report.education_distribution],
+    )
+    write_sheet(
+        "Insights",
+        ["Level", "Title", "Detail"],
+        [[insight.level, insight.title, insight.detail] for insight in report.insights],
     )
 
     buffer = io.BytesIO()
@@ -336,6 +517,11 @@ def export_pdf(report: ReportResponse) -> bytes:
             ]
             for gap in report.skill_gaps[:15]
         ],
+    )
+    add_table(
+        "Highlights",
+        ["Level", "Finding"],
+        [[insight.level.title(), f"{insight.title} — {insight.detail[:180]}"] for insight in report.insights],
     )
 
     document.build(story)

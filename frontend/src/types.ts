@@ -548,6 +548,29 @@ export interface DashboardResponse {
   generated_at: string;
 }
 
+export interface ReportInsight {
+  level: "success" | "info" | "warning" | "error" | string;
+  title: string;
+  detail: string;
+}
+
+export interface ReportMatchCandidate {
+  candidate_id: number;
+  name: string;
+  score: number;
+  recommendation?: string | null;
+}
+
+export interface ReportMatchRun {
+  run_id: number;
+  title?: string | null;
+  created_at: string;
+  candidates_evaluated: number;
+  top_score?: number | null;
+  created_by?: string | null;
+  top_candidates: ReportMatchCandidate[];
+}
+
 export interface ReportResponse {
   generated_at: string;
   period_start?: string | null;
@@ -559,21 +582,32 @@ export interface ReportResponse {
     average_parse_ms: number;
     shortlist_rate: number;
     rejection_rate: number;
+    hired: number;
+    interviewing: number;
+    pending_review: number;
+    failed_resumes: number;
     average_experience_years: number;
     skills_per_candidate: number;
     taxonomy_coverage_percent: number;
+    unique_skills: number;
+    unique_companies: number;
+    new_candidates_in_period: number;
     matches_run: number;
     average_match_score?: number | null;
   };
+  insights: ReportInsight[];
   top_technologies: NamedValue[];
   top_skills: NamedValue[];
   top_categories: NamedValue[];
   hiring_trends: TrendPoint[];
-  skill_gaps: Record<string, unknown>[];
+  skill_gaps: SkillGapItem[];
   pipeline: { status: string; label: string; count: number; percent: number }[];
   experience_distribution: NamedValue[];
   top_companies: NamedValue[];
-  recent_matches: Record<string, unknown>[];
+  top_certifications: NamedValue[];
+  top_locations: NamedValue[];
+  education_distribution: NamedValue[];
+  recent_matches: ReportMatchRun[];
 }
 
 export interface SkillTaxonomyItem {

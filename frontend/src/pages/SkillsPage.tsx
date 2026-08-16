@@ -5,12 +5,17 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
   Avatar,
   Box,
   Button,
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Drawer,
   Grid,
@@ -26,6 +31,7 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import DownloadIcon from "@mui/icons-material/Download";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SearchIcon from "@mui/icons-material/Search";
 import SyncIcon from "@mui/icons-material/Sync";
@@ -37,6 +43,43 @@ import { EmptyState, Loading, PageHeader, StatCard, StatusChip } from "@/compone
 import { useAuth } from "@/auth/AuthContext";
 import type { SkillTaxonomyItem } from "@/types";
 
+const MAX_SKILLS_CSV_BYTES = 2 * 1024 * 1024;
+
+function skillsCsvFormatError(text: string): string | null {
+  const stripped = text.replace(/^\uFEFF/, "").trimStart();
+  if (!stripped) {
+    return "The selected file is empty.";
+  }
+  const head = stripped.slice(0, 32).toLowerCase();
+  if (head.startsWith("<!doctype") || head.startsWith("<html") || stripped.startsWith("{") || stripped.startsWith("[")) {
+    return "Wrong file format. Upload a skills CSV, not JSON or HTML.";
+  }
+  const header = stripped.split(/\r?\n/, 1)[0] ?? "";
+  const normalized = header.toLowerCase().replace(/[ -]+/g, "_");
+  if (!normalized.includes("skill_name")) {
+    return "Wrong CSV format. The header must include skill_name. Download the CSV from this page and keep those column names.";
+  }
+  return null;
+}
+
+function validateSkillsCsvFile(file: File): Promise<string | null> {
+  if (!file.name.toLowerCase().endsWith(".csv")) {
+    return Promise.resolve("Please choose a .csv file. Excel workbooks (.xlsx) are not accepted.");
+  }
+  if (file.size === 0) {
+    return Promise.resolve("The selected file is empty.");
+  }
+  if (file.size > MAX_SKILLS_CSV_BYTES) {
+    return Promise.resolve("CSV is too large (max 2 MB).");
+  }
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(skillsCsvFormatError(String(reader.result ?? "")));
+    reader.onerror = () => resolve("Could not read that file. Please upload a UTF-8 CSV.");
+    reader.readAsText(file.slice(0, 64 * 1024));
+  });
+}
+
 export default function SkillsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -47,6 +90,7 @@ export default function SkillsPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<SkillTaxonomyItem | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const skillCandidates = useQuery({
     queryKey: ["candidates", "by-skill", selectedSkill?.name],
@@ -73,7 +117,7 @@ export default function SkillsPage() {
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["skills"] });
       enqueueSnackbar(
-        `Imported ${Number(result.created ?? 0)} new, updated ${Number(result.updated ?? 0)} skills`,
+        `Imported ${Number(result.skills_created ?? result.created ?? 0)} new, updated ${Number(result.skills_updated ?? result.updated ?? 0)} skills`,
         { variant: "success" },
       );
     },
@@ -84,11 +128,18 @@ export default function SkillsPage() {
     mutationFn: (file: File) => skillsApi.uploadCsv(file),
     onSuccess: (result) => {
       void queryClient.invalidateQueries({ queryKey: ["skills"] });
+      setPendingFile(null);
       enqueueSnackbar(
-        `CSV imported: ${Number(result.created ?? 0)} created, ${Number(result.updated ?? 0)} updated`,
+        `CSV imported: ${Number(result.skills_created ?? result.created ?? 0)} created, ${Number(result.skills_updated ?? result.updated ?? 0)} updated`,
         { variant: "success" },
       );
     },
+    onError: (error: Error) => enqueueSnackbar(error.message, { variant: "error" }),
+  });
+
+  const downloadCsv = useMutation({
+    mutationFn: () => skillsApi.downloadCsv(),
+    onSuccess: () => enqueueSnackbar("Downloaded skills-knowledge-base.csv", { variant: "success" }),
     onError: (error: Error) => enqueueSnackbar(error.message, { variant: "error" }),
   });
 
@@ -112,14 +163,30 @@ export default function SkillsPage() {
               <input
                 ref={fileInput}
                 type="file"
-                accept=".csv"
+                accept=".csv,text/csv"
                 hidden
                 onChange={(event) => {
                   const file = event.target.files?.[0];
-                  if (file) uploadCsv.mutate(file);
                   event.target.value = "";
+                  if (!file) return;
+                  void validateSkillsCsvFile(file).then((error) => {
+                    if (error) {
+                      enqueueSnackbar(error, { variant: "error" });
+                      return;
+                    }
+                    uploadCsv.reset();
+                    setPendingFile(file);
+                  });
                 }}
               />
+              <Button
+                variant="outlined"
+                startIcon={<DownloadIcon />}
+                disabled={downloadCsv.isPending}
+                onClick={() => downloadCsv.mutate()}
+              >
+                {downloadCsv.isPending ? "Downloading…" : "Download CSV"}
+              </Button>
               <Button
                 variant="outlined"
                 startIcon={<UploadFileIcon />}
@@ -140,6 +207,14 @@ export default function SkillsPage() {
           ) : undefined
         }
       />
+
+      {isAdmin ? (
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Download the current CSV (filled with live skills and the importer columns), edit rows in Excel, then
+          upload. Matching skill names are updated. Removed rows are not deleted. Use semicolons for lists such as
+          synonyms and related skills.
+        </Typography>
+      ) : null}
 
       <Grid container spacing={2}>
         <Grid item xs={6} md={3}>
@@ -280,6 +355,47 @@ export default function SkillsPage() {
           </AccordionDetails>
         </Accordion>
       ))}
+
+      <Dialog
+        open={Boolean(pendingFile)}
+        onClose={() => {
+          if (!uploadCsv.isPending) setPendingFile(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Import skills CSV</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" sx={{ mb: 1.5 }}>
+            {pendingFile
+              ? `${pendingFile.name} (${pendingFile.size < 1024 ? `${pendingFile.size} B` : `${(pendingFile.size / 1024).toFixed(1)} KB`})`
+              : ""}
+          </Typography>
+          {uploadCsv.isError ? (
+            <Alert severity="error" sx={{ mb: 1.5 }}>
+              {uploadCsv.error.message}
+            </Alert>
+          ) : null}
+          <Typography variant="body2" color="text.secondary">
+            Required column: <strong>skill_name</strong>. Optional columns: skill_id, category, parent_skill,
+            related_skills, technology_stack, job_role, experience_level, skill_synonyms, skill_description.
+            Separate list values with a semicolon. Files that are not this CSV format are rejected and nothing is
+            imported.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPendingFile(null)} disabled={uploadCsv.isPending}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!pendingFile || uploadCsv.isPending}
+            onClick={() => pendingFile && uploadCsv.mutate(pendingFile)}
+          >
+            {uploadCsv.isPending ? "Importing…" : "Import"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Drawer
         anchor="right"

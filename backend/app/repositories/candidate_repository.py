@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.ai.text_utils import normalize_key, tokenize
 from app.core.constants import CandidateStatus, ResumeStatus
-from app.models.ai import MatchRun
+from app.models.ai import MatchResult, MatchRun
 from app.models.candidate import (
     Candidate,
     CandidateSkill,
@@ -498,11 +498,63 @@ def recent_uploads(session: Session, *, limit: int = 8) -> list[Resume]:
     )
 
 
+def unique_skill_count(session: Session) -> int:
+    return (
+        session.scalar(
+            select(func.count(func.distinct(CandidateSkill.skill_id)))
+            .join(Candidate, and_(Candidate.id == CandidateSkill.candidate_id, Candidate.is_deleted.is_(False)))
+            .where(CandidateSkill.skill_id.isnot(None))
+        )
+        or 0
+    )
+
+
+def unique_company_count(session: Session) -> int:
+    return (
+        session.scalar(
+            select(func.count(func.distinct(Experience.company_name)))
+            .join(Candidate, and_(Candidate.id == Experience.candidate_id, Candidate.is_deleted.is_(False)))
+            .where(Experience.company_name.isnot(None), Experience.company_name != "")
+        )
+        or 0
+    )
+
+
+def top_locations(session: Session, *, limit: int = 10) -> list[tuple[str, int]]:
+    location = func.coalesce(Candidate.city, Candidate.state, Candidate.country)
+    rows = session.execute(
+        select(location, func.count(Candidate.id))
+        .where(Candidate.is_deleted.is_(False), location.isnot(None), location != "")
+        .group_by(location)
+        .order_by(func.count(Candidate.id).desc())
+        .limit(limit)
+    ).all()
+    return [(name, int(total)) for name, total in rows if name]
+
+
+def education_distribution(session: Session, *, limit: int = 8) -> list[tuple[str, int]]:
+    rows = session.execute(
+        select(Candidate.highest_degree, func.count(Candidate.id))
+        .where(
+            Candidate.is_deleted.is_(False),
+            Candidate.highest_degree.isnot(None),
+            Candidate.highest_degree != "",
+        )
+        .group_by(Candidate.highest_degree)
+        .order_by(func.count(Candidate.id).desc())
+        .limit(limit)
+    ).all()
+    return [(name, int(total)) for name, total in rows if name]
+
+
 def recent_match_runs(session: Session, *, limit: int = 5) -> list[MatchRun]:
     return list(
         session.scalars(
             select(MatchRun)
-            .options(selectinload(MatchRun.results), selectinload(MatchRun.created_by))
+            .options(
+                selectinload(MatchRun.results).selectinload(MatchResult.candidate),
+                selectinload(MatchRun.created_by),
+            )
             .order_by(MatchRun.created_at.desc())
             .limit(limit)
         )

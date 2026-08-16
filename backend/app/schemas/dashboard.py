@@ -75,11 +75,24 @@ class RecruitmentKPIs(BaseModel):
     average_parse_ms: float = 0.0
     shortlist_rate: float = 0.0
     rejection_rate: float = 0.0
+    hired: int = 0
+    interviewing: int = 0
+    pending_review: int = 0
+    failed_resumes: int = 0
     average_experience_years: float = 0.0
     skills_per_candidate: float = 0.0
     taxonomy_coverage_percent: float = 0.0
+    unique_skills: int = 0
+    unique_companies: int = 0
+    new_candidates_in_period: int = 0
     matches_run: int = 0
     average_match_score: float | None = None
+
+
+class ReportInsight(BaseModel):
+    level: str = "info"
+    title: str
+    detail: str
 
 
 class ReportResponse(BaseModel):
@@ -87,6 +100,7 @@ class ReportResponse(BaseModel):
     period_start: date | None = None
     period_end: date | None = None
     kpis: RecruitmentKPIs
+    insights: list[ReportInsight] = Field(default_factory=list)
     top_technologies: list[NamedValue] = Field(default_factory=list)
     top_skills: list[NamedValue] = Field(default_factory=list)
     top_categories: list[NamedValue] = Field(default_factory=list)
@@ -95,4 +109,7 @@ class ReportResponse(BaseModel):
     pipeline: list[PipelineStage] = Field(default_factory=list)
     experience_distribution: list[NamedValue] = Field(default_factory=list)
     top_companies: list[NamedValue] = Field(default_factory=list)
+    top_certifications: list[NamedValue] = Field(default_factory=list)
+    top_locations: list[NamedValue] = Field(default_factory=list)
+    education_distribution: list[NamedValue] = Field(default_factory=list)
     recent_matches: list[dict] = Field(default_factory=list)

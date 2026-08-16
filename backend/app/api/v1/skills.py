@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile
+from fastapi import APIRouter, Depends, File, Query, Response, UploadFile
 from sqlalchemy import func, select
 
 from app.api.deps import AdminUser, DbSession, require_permission
@@ -16,7 +14,7 @@ from app.models.skill import Skill
 from app.models.user import User
 from app.schemas.skill import SkillCategoryRead, SkillImportResponse, SkillTaxonomyRead
 from app.services.resume_processing import embed_skill_taxonomy
-from app.services.skills_import import import_skills_csv
+from app.services.skills_import import export_skills_csv, import_skills_csv, import_skills_from_bytes
 from app.services.taxonomy import get_taxonomy
 
 router = APIRouter(prefix="/skills", tags=["Skills Knowledge Base"])
@@ -45,6 +43,7 @@ def list_skills(
 ) -> list[SkillTaxonomyRead]:
     taxonomy = get_taxonomy(session)
     counts = _candidate_counts(session)
+    external_ids = dict(session.execute(select(Skill.id, Skill.external_id)).all())
     lowered = (search or "").lower()
 
     results: list[SkillTaxonomyRead] = []
@@ -61,6 +60,7 @@ def list_skills(
         results.append(
             SkillTaxonomyRead(
                 id=node.id,
+                external_id=external_ids.get(node.id),
                 name=node.name,
                 slug=node.slug,
                 category=node.category,
@@ -127,19 +127,32 @@ def upload_skills_csv(
     file: Annotated[UploadFile, File(description="Skills CSV")],
     generate_embeddings: bool = Query(True),
 ) -> SkillImportResponse:
-    data = file.file.read()
-    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as handle:
-        handle.write(data)
-        temp_path = Path(handle.name)
+    filename = file.filename or "uploaded.csv"
     try:
-        report = import_skills_csv(session, temp_path)
-        report.source = file.filename or "uploaded.csv"
-        get_taxonomy(session, refresh=True)
-        embeddings = embed_skill_taxonomy(session) if generate_embeddings else 0
-        return SkillImportResponse(**report.as_dict(), embeddings_created=embeddings)
+        data = file.file.read()
     finally:
-        temp_path.unlink(missing_ok=True)
         file.file.close()
+    report = import_skills_from_bytes(
+        session,
+        data,
+        source=filename,
+        filename=filename,
+        require_csv_extension=True,
+    )
+    get_taxonomy(session, refresh=True)
+    embeddings = embed_skill_taxonomy(session) if generate_embeddings else 0
+    return SkillImportResponse(**report.as_dict(), embeddings_created=embeddings)
+
+
+@router.get("/export")
+def export_skills(session: DbSession, _: AdminUser) -> Response:
+    """Download the live taxonomy as a CSV the importer can round-trip."""
+    payload = export_skills_csv(session)
+    return Response(
+        content=payload,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="skills-knowledge-base.csv"'},
+    )
 
 
 @router.get("/stats", response_model=dict)

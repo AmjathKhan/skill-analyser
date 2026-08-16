@@ -185,9 +185,9 @@ export const dashboardApi = {
 export const reportsApi = {
   get: (params: { months?: number; gap_skills?: string[] } = {}) =>
     api.get<ReportResponse>("/reports", { params }).then((r) => r.data),
-  export: async (format: "pdf" | "csv" | "excel", months = 6) => {
+  export: async (format: "pdf" | "csv" | "excel", months = 6, gapSkills?: string[]) => {
     const response = await api.get("/reports/export", {
-      params: { format, months },
+      params: { format, months, gap_skills: gapSkills?.length ? gapSkills : undefined },
       responseType: "blob",
     });
     const extension = format === "excel" ? "xlsx" : format;
@@ -218,6 +218,10 @@ export const skillsApi = {
     return api
       .post<Record<string, unknown>>("/skills/import/upload", form)
       .then((r) => r.data);
+  },
+  downloadCsv: async () => {
+    const response = await api.get("/skills/export", { responseType: "blob" });
+    downloadBlob(response.data as Blob, "skills-knowledge-base.csv");
   },
 };
 
