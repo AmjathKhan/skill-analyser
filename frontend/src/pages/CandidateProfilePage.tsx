@@ -8,6 +8,10 @@ import {
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Grid,
   IconButton,
@@ -26,6 +30,7 @@ import {
   Typography,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadIcon from "@mui/icons-material/Download";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LanguageIcon from "@mui/icons-material/Language";
@@ -80,6 +85,8 @@ export default function CandidateProfilePage() {
   const [tab, setTab] = useState(0);
   const [note, setNote] = useState("");
   const [rating, setRating] = useState<number | null>(null);
+  const [resumeToDelete, setResumeToDelete] = useState<{ id: number; filename: string } | null>(null);
+  const canDeleteResume = can("resume:upload");
 
   const candidate = useQuery({
     queryKey: ["candidate", id],
@@ -116,6 +123,17 @@ export default function CandidateProfilePage() {
       setRating(null);
       void queryClient.invalidateQueries({ queryKey: ["candidate", id] });
       enqueueSnackbar("Note added", { variant: "success" });
+    },
+    onError: (error: Error) => enqueueSnackbar(error.message, { variant: "error" }),
+  });
+
+  const deleteResume = useMutation({
+    mutationFn: (resumeId: number) => resumesApi.remove(resumeId),
+    onSuccess: () => {
+      setResumeToDelete(null);
+      void queryClient.invalidateQueries({ queryKey: ["candidate", id] });
+      void queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      enqueueSnackbar("Resume deleted", { variant: "success" });
     },
     onError: (error: Error) => enqueueSnackbar(error.message, { variant: "error" }),
   });
@@ -218,15 +236,33 @@ export default function CandidateProfilePage() {
                   ))}
                 </TextField>
                 {data.resumes[0] ? (
-                  <Button
-                    variant="outlined"
-                    startIcon={<DownloadIcon />}
-                    onClick={() =>
-                      resumesApi.download(data.resumes[0].id, data.resumes[0].original_filename)
-                    }
-                  >
-                    Download resume
-                  </Button>
+                  <>
+                    <Button
+                      variant="outlined"
+                      startIcon={<DownloadIcon />}
+                      onClick={() =>
+                        resumesApi.download(data.resumes[0].id, data.resumes[0].original_filename)
+                      }
+                    >
+                      Download resume
+                    </Button>
+                    {canDeleteResume ? (
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<DeleteOutlineIcon />}
+                        disabled={deleteResume.isPending}
+                        onClick={() =>
+                          setResumeToDelete({
+                            id: data.resumes[0].id,
+                            filename: data.resumes[0].original_filename,
+                          })
+                        }
+                      >
+                        Delete resume
+                      </Button>
+                    ) : null}
+                  </>
                 ) : null}
               </Stack>
             </Grid>
@@ -587,13 +623,31 @@ export default function CandidateProfilePage() {
                           {resume.ocr_used ? " · OCR" : ""}
                         </Typography>
                       </Box>
-                      <Button
-                        size="small"
-                        startIcon={<DownloadIcon />}
-                        onClick={() => resumesApi.download(resume.id, resume.original_filename)}
-                      >
-                        Download
-                      </Button>
+                      <Stack direction="row" gap={1} flexShrink={0}>
+                        <Button
+                          size="small"
+                          startIcon={<DownloadIcon />}
+                          onClick={() => resumesApi.download(resume.id, resume.original_filename)}
+                        >
+                          Download
+                        </Button>
+                        {canDeleteResume ? (
+                          <Button
+                            size="small"
+                            color="error"
+                            startIcon={<DeleteOutlineIcon />}
+                            disabled={deleteResume.isPending}
+                            onClick={() =>
+                              setResumeToDelete({
+                                id: resume.id,
+                                filename: resume.original_filename,
+                              })
+                            }
+                          >
+                            Delete
+                          </Button>
+                        ) : null}
+                      </Stack>
                     </Stack>
                   </CardContent>
                 </Card>
@@ -624,6 +678,35 @@ export default function CandidateProfilePage() {
           ) : null}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={Boolean(resumeToDelete)}
+        onClose={() => (deleteResume.isPending ? undefined : setResumeToDelete(null))}
+      >
+        <DialogTitle>Delete resume</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Delete{" "}
+            <Typography component="span" fontWeight={600}>
+              {resumeToDelete?.filename}
+            </Typography>
+            ? The file will be removed permanently.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setResumeToDelete(null)} disabled={deleteResume.isPending}>
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            disabled={!resumeToDelete || deleteResume.isPending}
+            onClick={() => resumeToDelete && deleteResume.mutate(resumeToDelete.id)}
+          >
+            Delete resume
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

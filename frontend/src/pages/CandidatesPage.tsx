@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Autocomplete,
   Box,
@@ -8,18 +8,27 @@ import {
   Card,
   CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
+  IconButton,
   MenuItem,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { DataGrid, type GridColDef, type GridPaginationModel } from "@mui/x-data-grid";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DownloadIcon from "@mui/icons-material/Download";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
+import { useSnackbar } from "notistack";
 import dayjs from "dayjs";
 
-import { candidatesApi, reportsApi, skillsApi } from "@/api/endpoints";
+import { candidatesApi, reportsApi, resumesApi, skillsApi } from "@/api/endpoints";
+import { useAuth } from "@/auth/AuthContext";
 import { PageHeader, ScoreBadge, StatusChip } from "@/components/common";
 import type { CandidateListItem } from "@/types";
 
@@ -55,6 +64,9 @@ const EMPTY_FILTERS: Filters = {
 
 export default function CandidatesPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const { can } = useAuth();
   const [searchParams] = useSearchParams();
   const [filters, setFilters] = useState<Filters>(() => ({
     ...EMPTY_FILTERS,
@@ -62,6 +74,8 @@ export default function CandidatesPage() {
   }));
   const [pagination, setPagination] = useState<GridPaginationModel>({ page: 0, pageSize: 20 });
   const [sortBy, setSortBy] = useState("created_at");
+  const [candidateToDelete, setCandidateToDelete] = useState<CandidateListItem | null>(null);
+  const canDeleteResume = can("resume:upload") || can("candidate:delete");
 
   const { data: skillOptions } = useQuery({
     queryKey: ["skills", "options"],
@@ -85,6 +99,31 @@ export default function CandidatesPage() {
         page_size: pagination.pageSize,
       }),
     placeholderData: keepPreviousData,
+  });
+
+  const deleteResume = useMutation({
+    mutationFn: async (candidate: CandidateListItem) => {
+      const detail = await candidatesApi.get(candidate.id);
+      if (detail.resumes.length === 0) {
+        if (can("candidate:delete")) {
+          await candidatesApi.remove(candidate.id, true);
+          return;
+        }
+        throw new Error("This candidate has no resume to delete");
+      }
+      for (const resume of detail.resumes) {
+        await resumesApi.remove(resume.id);
+      }
+      if (can("candidate:delete")) {
+        await candidatesApi.remove(candidate.id, true);
+      }
+    },
+    onSuccess: () => {
+      setCandidateToDelete(null);
+      void queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      enqueueSnackbar("Resume deleted", { variant: "success" });
+    },
+    onError: (error: Error) => enqueueSnackbar(error.message, { variant: "error" }),
   });
 
   const columns = useMemo<GridColDef<CandidateListItem>[]>(
@@ -154,8 +193,35 @@ export default function CandidatesPage() {
         width: 120,
         valueFormatter: (value: string) => dayjs(value).format("DD MMM YY"),
       },
+      ...(canDeleteResume
+        ? [
+            {
+              field: "actions",
+              headerName: "",
+              width: 72,
+              sortable: false,
+              filterable: false,
+              disableColumnMenu: true,
+              renderCell: ({ row }) => (
+                <Tooltip title="Delete resume">
+                  <IconButton
+                    size="small"
+                    color="error"
+                    aria-label={`Delete resume for ${row.full_name}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setCandidateToDelete(row);
+                    }}
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              ),
+            } satisfies GridColDef<CandidateListItem>,
+          ]
+        : []),
     ],
-    [],
+    [canDeleteResume],
   );
 
   const rows = query.data?.items ?? [];
@@ -290,6 +356,36 @@ export default function CandidatesPage() {
           }}
         />
       </Card>
+
+      <Dialog
+        open={Boolean(candidateToDelete)}
+        onClose={() => (deleteResume.isPending ? undefined : setCandidateToDelete(null))}
+      >
+        <DialogTitle>Delete resume</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Delete the resume for{" "}
+            <Typography component="span" fontWeight={600}>
+              {candidateToDelete?.full_name}
+            </Typography>
+            ? The file will be removed permanently
+            {can("candidate:delete") ? ", and this candidate will be removed from the list" : ""}.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCandidateToDelete(null)} disabled={deleteResume.isPending}>
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            disabled={!candidateToDelete || deleteResume.isPending}
+            onClick={() => candidateToDelete && deleteResume.mutate(candidateToDelete)}
+          >
+            Delete resume
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
