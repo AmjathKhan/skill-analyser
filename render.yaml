@@ -1,0 +1,41 @@
+# Free Render web service — no credit card required.
+# Deploy: https://render.com/deploy?repo=https://github.com/AmjathKhan/skill-analyser
+# Free instances sleep after 15 minutes idle and lose SQLite/uploads on restart.
+
+services:
+  - type: web
+    name: skill-analyser
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: BACKEND_CORS_ORIGINS
+        value: "*"
+      - key: DATABASE_URL
+        value: sqlite:////tmp/skill_analyser.db
+      - key: STORAGE_DIR
+        value: /tmp/storage
+      - key: USE_CELERY
+        value: "false"
+      - key: EMBEDDING_BACKEND
+        value: hash
+      - key: VECTOR_BACKEND
+        value: numpy
+      - key: GRAPH_BACKEND
+        value: networkx
+      - key: LLM_BACKEND
+        value: template
+      - key: FIRST_SUPERUSER_EMAIL
+        value: admin@skillanalyser.ai
+      - key: FIRST_SUPERUSER_PASSWORD
+        value: Admin@12345
+      - key: FIRST_SUPERUSER_NAME
+        value: HR Administrator

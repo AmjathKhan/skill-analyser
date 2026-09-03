@@ -81,7 +81,20 @@ docker compose up -d --scale worker=4 --scale backend=3
 The frontend image bakes `VITE_API_BASE_URL` in at build time. Keep the default `/api` and let nginx
 proxy to the API, or rebuild the image when the API moves to a different origin.
 
-## 3b. OVHcloud Public Cloud
+## 3b. Free cloud (Render)
+
+The root `Dockerfile` is a single container (React SPA + FastAPI, SQLite, hash embeddings, NetworkX).
+That image runs on [Render](https://render.com/docs/free) without a credit card:
+
+1. Open [Deploy to Render](https://render.com/deploy?repo=https://github.com/AmjathKhan/skill-analyser) (or New Blueprint from this repo).
+2. Sign in with GitHub and apply `render.yaml`.
+3. Wait for the Docker build, then open `https://skill-analyser.onrender.com` (name may get a suffix).
+
+Sign in with `admin@skillanalyser.ai` / `Admin@12345`. Free web services sleep after 15 minutes idle
+(first request can take about a minute) and wipe SQLite plus uploaded resumes whenever the instance
+restarts. Do not use this tier for production data.
+
+## 3c. OVHcloud Public Cloud
 
 This repo cannot create an OVH instance by itself (that needs your OVH account). Once you have an
 Ubuntu 24.04 Public Cloud VM (4 vCPU / 8 GB RAM or more, SSH key added, ports 22/80/443 open):
